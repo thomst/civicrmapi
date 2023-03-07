@@ -1,0 +1,10 @@
+__pycache__/
+.python-version
+.coverage
+.coveralls.yml
+/civapi.egg-info/
+/build/
+/dist/
+/.tox/
+/.vscode/
+/docs/build/
