@@ -2,7 +2,7 @@ __pycache__/
 .python-version
 .coverage
 .coveralls.yml
-/civapi.egg-info/
+/civicrmapi.egg-info/
 /build/
 /dist/
 /.tox/
