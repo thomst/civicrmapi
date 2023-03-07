@@ -1,6 +1,6 @@
-=================
-Welcome to civapi
-=================
+=====================
+Welcome to civicrmapi
+=====================
 
 .. note::
     This is a early development version of civapi.
