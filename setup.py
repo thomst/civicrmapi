@@ -15,7 +15,7 @@ def read(filename):
 def version():
     """Get the local package version."""
     namespace = {}
-    path = Path("civapi", "__version__.py")
+    path = Path("civicrmapi", "__version__.py")
     exec(path.read_text(), namespace)
     return namespace["__version__"]
 
@@ -30,14 +30,14 @@ else:
 
 
 setup(
-    name="civapi",
+    name="civicrmapi",
     version=version,
     description="Connect with the CiviCRM APIv4.",
     long_description=read("README.rst"),
     author="Thomas Leichtfuß",
     author_email="thomas.leichtfuss@posteo.de",
     license="BSD License",
-    url="https://github.com/thomst/civapi",
+    url="https://github.com/thomst/civicrmapi",
     platforms=["OS Independent"],
     packages=find_packages(exclude=["tests"]),
     install_requires=[

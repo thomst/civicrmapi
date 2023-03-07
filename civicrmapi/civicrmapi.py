@@ -48,6 +48,12 @@ class CivicrmApi:
         else:
             self.auth = None
 
+    def call(self, *args):
+        """
+        Wrapper for :meth:`.callv4`.
+        """
+        return self.callv4(*args)
+
     def callv4(self, entity, action, params):
         """
         :param str entity: CiviCRM-entitiy
@@ -65,7 +71,7 @@ class CivicrmApi:
         params = dict(params=json.dumps(params))
         return self._call(url, params, headers)
 
-    def callv4(self, entity, action, params):
+    def callv3(self, entity, action, params):
         """
         :param str entity: CiviCRM-entitiy
         :param str action: api call action
