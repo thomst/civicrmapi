@@ -1,2 +1,2 @@
-from .civicrmapi import ApiError
-from .civicrmapi import CivicrmApi
+from .api import ApiError
+from .api import CivicrmApi

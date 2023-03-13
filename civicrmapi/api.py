@@ -1,5 +1,7 @@
 import requests
 import json
+from . import entities
+from .entities.base import BaseEntity
 
 
 class ApiError(Exception):
@@ -41,6 +43,7 @@ class CivicrmApi:
         self.verify_ssl = verify_ssl
         self.timeout = timeout
 
+        # Setup basic-auth
         if htaccess:
             auth_user = htaccess['user']
             auth_pass = htaccess['pass']
@@ -48,7 +51,15 @@ class CivicrmApi:
         else:
             self.auth = None
 
-    def call(self, *args):
+        # Add entities.
+        for entity_name in entities.entities:
+            if hasattr(entities, entity_name):
+                setattr(self, entity_name, getattr(entities, entity_name))
+            else:
+                entity_class = type(entity_name, (BaseEntity,), dict())
+                setattr(self, entity_name, entity_class)
+
+    def __call__(self, *args):
         """
         Wrapper for :meth:`.callv4`.
         """
@@ -110,3 +121,4 @@ class CivicrmApi:
             raise ApiError(reply)
         else:
             return result
+
