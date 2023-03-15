@@ -1,4 +1,4 @@
-entities = [
+ENTITIES = [
     'Contact',
     'Address',
     'Phone',
