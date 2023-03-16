@@ -31,7 +31,8 @@ class TestApiConstruction(unittest.TestCase):
     def test_entity_initialization(self):
         api = self.base_api_v4()
         # Setup an entity class with a get attribute.
-        entity_class = type('MyEntity', (BaseEntity,), dict(get='foobar'))
+        params = dict(get='fakemethod', newmethod='fakemethod')
+        entity_class = type('Contact', (BaseEntity,), params)
         entity = entity_class(api)
 
         # Check that default actions were added to the entity.
@@ -39,4 +40,15 @@ class TestApiConstruction(unittest.TestCase):
             self.assertTrue(hasattr(entity, action))
 
         # Check that the get-attribute was not overwritten.
-        self.assertEqual(entity.get, 'foobar')
+        self.assertEqual(entity.get, 'fakemethod')
+        self.assertEqual(entity.newmethod, 'fakemethod')
+
+        # Add our Contact class to the v4 module and check if it will be added
+        # to the base-api.
+        setattr(v4, 'Contact', entity_class)
+        api = self.base_api_v4()
+        for action in v4.ACTIONS:
+            self.assertTrue(hasattr(api.Contact, action))
+        self.assertEqual(api.Contact.get, 'fakemethod')
+        self.assertEqual(api.Contact.newmethod, 'fakemethod')
+
