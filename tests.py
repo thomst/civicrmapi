@@ -17,6 +17,7 @@ class TestApiConstruction(unittest.TestCase):
 
     def test_api_initialization(self):
         api = self.base_api_v3()
+        self.assertRaises(NotImplementedError, api, 'Entity', 'action', dict())
         for entity in v3.ENTITIES:
             self.assertTrue(hasattr(api, entity))
             for action in v3.ACTIONS:
