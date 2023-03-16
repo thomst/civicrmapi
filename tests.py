@@ -8,6 +8,8 @@ from civicrmapi.base import BaseEntity
 from civicrmapi.rest import BaseRestApi
 from civicrmapi.rest import RestApiV3
 from civicrmapi.rest import RestApiV4
+from civicrmapi.console import ConsoleApiV3
+from civicrmapi.console import ConsoleApiV4
 
 
 class TestApiConstruction(unittest.TestCase):
@@ -66,3 +68,9 @@ class TestApiConstruction(unittest.TestCase):
         self.assertRaises(RequestError, api.Contact, 'get', dict())
         api = RestApiV4('dummy.de', 'foo')
         self.assertRaises(RequestError, api.Contact.get, dict())
+
+    def test_console_api(self):
+        api = ConsoleApiV3('dummy_cv', '/tmp')
+        self.assertRaises(InvokeError, api.Contact.get, 'more arguments')
+        api = ConsoleApiV4('dummy_cv', 'dummy_cwd')
+        self.assertRaises(InvokeError, api.Contact.get, ['more', 'arguments'])
