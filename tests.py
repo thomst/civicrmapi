@@ -52,4 +52,5 @@ class TestApiConstruction(unittest.TestCase):
             self.assertTrue(hasattr(api.Contact, action))
         self.assertEqual(api.Contact.get, 'fakemethod')
         self.assertEqual(api.Contact.newmethod, 'fakemethod')
+        delattr(v4, 'Contact')
 
