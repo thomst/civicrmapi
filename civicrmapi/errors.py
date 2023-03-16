@@ -1,9 +1,19 @@
+import json
 
-class RestConnectionError(Exception):
+
+class BaseException(Exception):
     pass
 
 
-class RestApiError(Exception):
+class RequestError(BaseException):
+    pass
+
+
+class InvokeError(BaseException):
+    pass
+
+
+class HttpError(BaseException):
     def __init__(self, reply):
         self.reply = reply
         self.code = reply.status_code
@@ -19,5 +29,25 @@ class RestApiError(Exception):
         else:
             for key, value in result.items():
                 lines.append(f'{key}: {value}')
+        return '\n'.join(lines)
 
+
+class InvalidJson(BaseException):
+    def __init__(self, result):
+        self.result = result
+
+    def __str__(self):
+        lines = ['Invalid json:']
+        lines.append(self.result)
+        return '\n'.join(lines)
+
+
+class ApiError(BaseException):
+    def __init__(self, result):
+        self.result = result
+
+    def __str__(self):
+        lines = list()
+        for key, value in result.items():
+            lines.append(f'{key}: {value}')
         return '\n'.join(lines)

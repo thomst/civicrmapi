@@ -4,8 +4,8 @@ import json
 from . import v3
 from . import v4
 from .base import BaseApi
-from .errors import RestApiError
-from .errors import RestConnectionError
+from .errors import HttpError
+from .errors import RequestError
 
 
 logger = logging.getLogger(__name__)
@@ -38,8 +38,9 @@ class BaseRestApi(BaseApi):
         """
         :param dict params: api call parameters
         :return dict: api call result
-        :raises RestConnectionError: when the api could not be accessed
-        :raises RestApiError: when the api call failed
+        :raises RequestError: when the api could not be accessed
+        :raises ApiError: when the api call failed
+        :raises InvalidJson: when the response is invalid json code
         """
         if url_path:
             url = '{}/{}'.format(self.url.rstrip('/'), url_path.lstrip('/'))
@@ -60,13 +61,13 @@ class BaseRestApi(BaseApi):
                 timeout=self.timeout,
                 headers=self.headers)
         except requests.exceptions.RequestException as exc:
-            raise RestConnectionError(exc)
+            raise RequestError(exc)
         else:
             logger.info(f'Post request done: {reply}')
             logger.debug(f'- text: {reply.text}')
 
         if not reply.status_code == 200:
-            raise RestApiError(reply)
+            raise HttpError(reply)
 
         return self._process_json_result(reply.text)
 
@@ -98,7 +99,8 @@ class RestApiV3(BaseRestApi):
         :param dict params: api call parameters
         :return dict: api call result
         :raises HttpError: when the api could not be accessed
-        :raises RestApiError: when the api call failed
+        :raises ApiError: when the api call failed
+        :raises InvalidJson: when the response is invalid json code
         """
         logger.info(f'Perform api call: {entity}.{action} with {params}')
         base_params = dict()
@@ -137,8 +139,9 @@ class RestApiV4(BaseRestApi):
         :param str action: api call action
         :param dict params: api call parameters
         :return dict: api call result
-        :raises RestConnectionError: when the api could not be accessed
-        :raises RestApiError: when the api call failed
+        :raises RequestError: when the api could not be accessed
+        :raises ApiError: when the api call failed
+        :raises InvalidJson: when the response is invalid json code
         """
         logger.info(f'Perform api call: {entity}.{action} with {params}')
         params = dict(params=json.dumps(params))
