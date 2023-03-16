@@ -62,6 +62,6 @@ class BaseApi:
         :param str entity: CiviCRM-entitiy
         :param str action: api call action
         :param dict params: api call parameters
-        :return dict: api call result
+        :raises NotImplementedError: always
         """
         raise NotImplementedError
