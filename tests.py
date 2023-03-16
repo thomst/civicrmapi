@@ -1,9 +1,9 @@
 import unittest
-from . import v3, v4
-from .api import BaseApi
-from .api import BaseEntity
-from .api import RestApiV3
-from .api import RestApiV4
+from civicrmapi import v3, v4
+from civicrmapi.base import BaseApi
+from civicrmapi.base import BaseEntity
+from civicrmapi.rest import RestApiV3
+from civicrmapi.rest import RestApiV4
 
 
 class TestApiConstruction(unittest.TestCase):
