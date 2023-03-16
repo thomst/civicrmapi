@@ -7,13 +7,16 @@ ENTITIES = [
     'GroupContact',
 ]
 ACTIONS = [
-    'checkAccess',
-    'getActions',
-    'getFields',
-    'get',
     'create',
-    'update',
-    'save',
     'delete',
+    'get',
+    'getsingle',
+    'getvalue',
+    'getcount',
+    'getrefcount',
+    'getfields',
+    'getlist',
+    'getoptions',
     'replace',
+    'getunique',
 ]
