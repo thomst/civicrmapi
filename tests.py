@@ -22,18 +22,19 @@ class TestApiConstruction(unittest.TestCase):
         self.base_api_v4 = type('api', (BaseApi,), dict(VERSION=v4))
 
     def test_api_initialization(self):
-        api = self.base_api_v3()
-        self.assertRaises(NotImplementedError, api, 'Entity', 'action', dict())
-        for entity in v3.ENTITIES:
-            self.assertTrue(hasattr(api, entity))
-            for action in v3.ACTIONS:
-                self.assertTrue(hasattr(getattr(api, entity), action))
-
-        api = self.base_api_v4()
-        for entity in v4.ENTITIES:
-            self.assertTrue(hasattr(api, entity))
-            for action in v4.ACTIONS:
-                self.assertTrue(hasattr(getattr(api, entity), action))
+        apis = [
+            self.base_api_v3(),
+            self.base_api_v4(),
+            ConsoleApiV3('dummy_cv', 'dummy_cwd'),
+            ConsoleApiV4('dummy_cv', 'dummy_cwd'),
+            RestApiV3('dummy.de', 'foo', 'bar'),
+            RestApiV4('dummy.de', 'foo'),
+        ]
+        for api in apis:
+            for entity in api.VERSION.ENTITIES:
+                self.assertTrue(hasattr(api, entity))
+                for action in api.VERSION.ACTIONS:
+                    self.assertTrue(hasattr(getattr(api, entity), action))
 
     def test_entity_initialization(self):
         api = self.base_api_v4()
