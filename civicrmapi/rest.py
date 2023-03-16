@@ -41,7 +41,10 @@ class BaseRestApi(BaseApi):
         :raises RestConnectionError: when the api could not be accessed
         :raises RestApiError: when the api call failed
         """
-        url = self.url.rstrip('/') + '/' + url_path.lstrip('/')
+        if url_path:
+            url = '{}/{}'.format(self.url.rstrip('/'), url_path.lstrip('/'))
+        else:
+            url = self.url
         logger.info(f'Perform post request: {url}')
         logger.debug(f'- params: {params}')
         logger.debug(f'- headers: {self.headers}')
