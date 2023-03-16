@@ -2,7 +2,30 @@
 Welcome to civicrmapi
 =====================
 
-.. note::
-    This is a early development version of civapi.
+.. image:: https://img.shields.io/badge/python-3.6%20%7C%203.7%20%7C%203.8%20%7C%203.9%20%7C%203.10-blue
+   :target: https://img.shields.io/badge/python-3.6%20%7C%203.7%20%7C%203.8%20%7C%203.9%20%7C%203.10-blue
+   :alt: python: 3.6, 3.7, 3.8, 3.9, 3.10
 
-Access the CiviCRM API with python. APIv3 and APIv4 are supported.
+.. image:: https://github.com/thomst/civicrmapi/actions/workflows/ci.yml/badge.svg
+   :target: https://github.com/thomst/civicrmapi/actions/workflows/ci.yml
+   :alt: CI
+
+.. image:: https://coveralls.io/repos/github/thomst/civicrmapi/badge.svg?branch=master
+   :target: https://coveralls.io/github/thomst/civicrmapi?branch=master
+   :alt: Coveralls
+
+
+Note
+====
+This is an early development state. The api is functional, but docs and extensive
+tests are not yet available.
+
+Description
+===========
+Clean and simple bindings to CiviCRM's API. Both APIv3 and APIv4 are supported.
+
+
+Links
+=====
+* `Repository <https://github.com/thomst/civicrmapi>`_
+* `Documentation <https://thomst.github.io/civicrmapi/>`_ (Not yet available!)
