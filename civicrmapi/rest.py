@@ -68,18 +68,7 @@ class BaseRestApi(BaseApi):
         if not reply.status_code == 200:
             raise RestApiError(reply)
 
-        try:
-            result = json.loads(reply.text)
-        except json.JSONDecodeError:
-            raise RestApiError(reply)
-        else:
-            logger.info(f'Valid json response.')
-            logger.debug(f'Decoded json: {result}')
-
-        if result.get('is_error', False) or result.get('error_message', None):
-            raise RestApiError(reply)
-        else:
-            return result
+        return self._process_json_result(reply.text)
 
 
 class RestApiV3(BaseRestApi):

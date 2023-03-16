@@ -1,3 +1,10 @@
+import logging
+import json
+from .errors import ApiError
+from .errors import InvalidJson
+
+
+logger = logging.getLogger(__name__)
 
 
 class BaseAction:
@@ -65,3 +72,20 @@ class BaseApi:
         :raises NotImplementedError: always
         """
         raise NotImplementedError
+
+    def _process_json_result(self, json_response):
+        """
+        Called by __call__ to process json response.
+        """
+        try:
+            result = json.loads(json_response)
+        except json.JSONDecodeError:
+            raise InvalidJson(json_response)
+        else:
+            logger.info(f'Valid json response.')
+            logger.debug(f'Decoded json: {result}')
+
+        if result.get('is_error', False) or result.get('error_message', None):
+            raise ApiError(result)
+        else:
+            return result
