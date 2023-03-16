@@ -1,7 +1,11 @@
 import unittest
+from civicrmapi import __version__
 from civicrmapi import v3, v4
+from civicrmapi.errors import RestConnectionError
+from civicrmapi.errors import RestApiError
 from civicrmapi.base import BaseApi
 from civicrmapi.base import BaseEntity
+from civicrmapi.rest import BaseRestApi
 from civicrmapi.rest import RestApiV3
 from civicrmapi.rest import RestApiV4
 
@@ -54,3 +58,11 @@ class TestApiConstruction(unittest.TestCase):
         self.assertEqual(api.Contact.newmethod, 'fakemethod')
         delattr(v4, 'Contact')
 
+    def test_rest_api_with_dummy_url(self):
+        # This could not work.
+        api = BaseRestApi('dummy.de', htaccess={'user': 'foo', 'pass': 'bar'})
+        self.assertRaises(RestConnectionError, api, dict())
+        api = RestApiV3('dummy.de', 'foo', 'bar')
+        self.assertRaises(RestConnectionError, api.Contact, 'get', dict())
+        api = RestApiV4('dummy.de', 'foo')
+        self.assertRaises(RestConnectionError, api.Contact.get, dict())
