@@ -102,11 +102,13 @@ class BaseApi:
             return self._normalize_result_values(result)
 
     def _normalize_result_values(self, result):
-        # Console api v4 returns a list.
+        # Console api v4 returns values as list.
         if isinstance(result, list):
             return result
-        # Otherwise we have dict.
+        # If we have a dict with values we return only those.
         elif 'values' in result:
             return result['values']
+        # Returning the result as dict as a fallback.
+        # (Don't know if that happens at all.)
         else:
             return result
