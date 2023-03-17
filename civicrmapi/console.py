@@ -25,7 +25,7 @@ class BaseConsoleApi(BaseApi):
 
     def _run(self, command):
         try:
-            reply = invoke.run(command)
+            reply = invoke.run(command, hide=True)
         except Exception as exc:
             raise InvokeError(exc)
         else:
