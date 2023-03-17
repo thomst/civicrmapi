@@ -85,7 +85,18 @@ class BaseApi:
             logger.info(f'Valid json response.')
             logger.debug(f'Decoded json: {result}')
 
-        if result.get('is_error', False) or result.get('error_message', None):
-            raise ApiError(result)
+        # Check api-v3 result for an api error.
+        if isinstance(result, dict) and result.get('is_error', False):
+                raise ApiError(result)
+        else:
+            return self._normalize_result_values(result)
+
+    def _normalize_result_values(self, result):
+        # Console api v4 returns a list.
+        if isinstance(result, list):
+            return result
+        # Otherwise we have dict.
+        elif 'values' in result:
+            return result['values']
         else:
             return result
