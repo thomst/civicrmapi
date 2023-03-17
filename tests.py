@@ -1,23 +1,42 @@
+import os
 import unittest
+import pprint
 from civicrmapi import __version__
 from civicrmapi import v3, v4
 from civicrmapi.errors import RequestError
 from civicrmapi.errors import InvokeError
 from civicrmapi.base import BaseApi
 from civicrmapi.base import BaseEntity
-from civicrmapi.rest import BaseRestApi
 from civicrmapi.rest import RestApiV3
 from civicrmapi.rest import RestApiV4
 from civicrmapi.console import ConsoleApiV3
 from civicrmapi.console import ConsoleApiV4
 
 
+URL = os.environ.get('APITEST_URL', None)
+API_KEY = os.environ.get('APITEST_API_KEY', None)
+SITE_KEY = os.environ.get('APITEST_SITE_KEY', None)
+CV = os.environ.get('APITEST_CV', None)
+CWD = os.environ.get('APITEST_CWD', None)
+
+
+class needs:
+    def __init__(self, *params):
+        self.params = params
+
+    def __call__(self, func):
+        def wrapper(*args, **kwargs):
+            if all(self.params):
+                return func(*args, **kwargs)
+            else:
+                return
+        return wrapper
+
+
+
 class TestApiConstruction(unittest.TestCase):
 
     def setUp(self):
-        self.url = 'http://fixme.de'
-        self.api_key = 'fixme'
-        self.site_key = 'fixme'
         self.base_api_v3 = type('api', (BaseApi,), dict(VERSION=v3))
         self.base_api_v4 = type('api', (BaseApi,), dict(VERSION=v4))
 
@@ -63,15 +82,54 @@ class TestApiConstruction(unittest.TestCase):
 
     def test_rest_api_with_dummy_url(self):
         # This could not work.
-        api = BaseRestApi('dummy.de', htaccess={'user': 'foo', 'pass': 'bar'})
-        self.assertRaises(RequestError, api, dict())
         api = RestApiV3('dummy.de', 'foo', 'bar')
         self.assertRaises(RequestError, api.Contact, 'get', dict())
-        api = RestApiV4('dummy.de', 'foo')
+        api = RestApiV4('dummy.de', 'foo', htaccess={'user': 'foo', 'pass': 'bar'})
         self.assertRaises(RequestError, api.Contact.get, dict())
 
-    def test_console_api(self):
+    def test_console_api_with_dummy_cv(self):
         api = ConsoleApiV3('dummy_cv', '/tmp')
-        self.assertRaises(InvokeError, api.Contact.get, 'more arguments')
+        self.assertRaises(InvokeError, api.Contact.get)
         api = ConsoleApiV4('dummy_cv', 'dummy_cwd')
         self.assertRaises(InvokeError, api.Contact.get, ['more', 'arguments'])
+
+    @needs(URL, API_KEY)
+    def test_rest_api_v4_call(self):
+        api = RestApiV4(URL, API_KEY)
+        result = api.Contact.get()
+        self.assertIsInstance(result, list)
+
+    @needs(URL, API_KEY, SITE_KEY)
+    def test_rest_api_v3_call(self):
+        api = RestApiV3(URL, API_KEY, SITE_KEY)
+        result = api.Contact.get()
+        self.assertIsInstance(result, list)
+
+    @needs(CV, CWD)
+    def test_console_api_call(self):
+        api = ConsoleApiV3(CV, CWD)
+        result = api.Contact.get()
+        self.assertIsInstance(result, list)
+
+        api = ConsoleApiV4(CV, CWD)
+        result = api.Contact.get()
+        self.assertIsInstance(result, list)
+
+    @needs(URL, API_KEY, SITE_KEY, CV, CWD)
+    def test_compare_rest_and_console_results(self):
+        params = dict(
+            select=['id'], 
+            where=[['contact_type', '=', 'Organization']],
+            limit=1
+            )
+        api = RestApiV4(URL, API_KEY)
+        rest_result = api.Contact.get(params)
+        self.assertIsInstance(rest_result, list)
+        api = ConsoleApiV4(CV, CWD)
+        console_result = api.Contact.get(params)
+        self.assertIsInstance(console_result, list)
+        self.assertEqual(rest_result, console_result)
+
+
+if __name__ == "__main__":
+    unittest.main()
