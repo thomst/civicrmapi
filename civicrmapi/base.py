@@ -14,12 +14,12 @@ class BaseAction:
     def __init__(self, api):
         self._api = api
 
-    def __call__(self, params):
+    def __call__(self, params=None):
         """
-        :param dict params: api call parameters
+        :param dict params: api call parameters (optional)
         :return dict: api call result
         """
-        return self._api(self.ENTITY, self.ACTION, params)
+        return self._api(self.ENTITY, self.ACTION, params or dict())
 
 
 class BaseEntity:
@@ -39,13 +39,13 @@ class BaseEntity:
                 action_class = type(action, (BaseAction,), attrs)
                 setattr(self, action, action_class(self._api))
 
-    def __call__(self, action, params):
+    def __call__(self, action, params=None):
         """
         :param str action: api call action
-        :param dict params: api call parameters
+        :param dict params: api call parameters (optional)
         :return dict: api call result
         """
-        return self._api(self.ENTITY, action, params)
+        return self._api(self.ENTITY, action, params or dict())
 
 
 class BaseApi:
@@ -64,11 +64,11 @@ class BaseApi:
                 entity_class = type(entity, (BaseEntity,), attrs)
                 setattr(self, entity, entity_class(self))
 
-    def __call__(self, entity, action, params):
+    def __call__(self, entity, action, params=None):
         """
         :param str entity: CiviCRM-entitiy
         :param str action: api call action
-        :param dict params: api call parameters
+        :param dict params: api call parameters (optional)
         :raises NotImplementedError: always
         """
         raise NotImplementedError
