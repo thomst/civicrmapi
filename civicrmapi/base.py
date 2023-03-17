@@ -69,9 +69,19 @@ class BaseApi:
         :param str entity: CiviCRM-entitiy
         :param str action: api call action
         :param dict params: api call parameters (optional)
-        :raises NotImplementedError: always
+        :return dict: api call result
+        :raises RequestError: when the rest api could not be accessed
+        :raises InvokeError: when the console api could not be accessed
+        :raises HttpError: when the rest api return an error code
+        :raises ApiError: when the api call failed
+        :raises InvalidJson: when the response is invalid json code
         """
-        raise NotImplementedError
+        logger.info(f'Perform api call: {entity}.{action} with {params}')
+        result = self._perform_api_call(entity, action, params or dict())
+        return self._process_json_result(result)
+
+    def _perform_api_call(self, entity, action, params):
+        raise NotImplemented
 
     def _process_json_result(self, json_response):
         """

@@ -34,14 +34,7 @@ class BaseRestApi(BaseApi):
         else:
             self.auth = None
 
-    def __call__(self, params, url_path=None):
-        """
-        :param dict params: api call parameters
-        :return dict: api call result
-        :raises RequestError: when the api could not be accessed
-        :raises ApiError: when the api call failed
-        :raises InvalidJson: when the response is invalid json code
-        """
+    def _perform_post_request(self, params, url_path=None):
         if url_path:
             url = '{}/{}'.format(self.url.rstrip('/'), url_path.lstrip('/'))
         else:
@@ -68,8 +61,11 @@ class BaseRestApi(BaseApi):
 
         if not reply.status_code == 200:
             raise HttpError(reply)
+        else:
+            return reply.text
 
-        return self._process_json_result(reply.text)
+    def _perform_api_call(self, entity, action, params):
+        raise NotImplemented
 
 
 class RestApiV3(BaseRestApi):
@@ -92,24 +88,15 @@ class RestApiV3(BaseRestApi):
         url = url.rstrip('/') + '/civicrm/ajax/rest'
         super().__init__(url, htaccess, verify_ssl, timeout)
 
-    def __call__(self, entity, action, params):
-        """
-        :param str entity: CiviCRM-entitiy
-        :param str action: api call action
-        :param dict params: api call parameters
-        :return dict: api call result
-        :raises HttpError: when the api could not be accessed
-        :raises ApiError: when the api call failed
-        :raises InvalidJson: when the response is invalid json code
-        """
-        logger.info(f'Perform api call: {entity}.{action} with {params}')
+    def _perform_api_call(self, entity, action, params):
+        params['sequential'] = params.get('sequential', 1)
         base_params = dict()
         base_params['api_key'] = self.api_key
         base_params['key'] = self.site_key
         base_params['entity'] = entity
         base_params['action'] = action
         base_params['json'] = json.dumps(params)
-        return super().__call__(params)
+        return self._perform_post_request(base_params)
 
 
 class RestApiV4(BaseRestApi):
@@ -133,17 +120,7 @@ class RestApiV4(BaseRestApi):
         headers['X-Civi-Auth'] = 'Bearer {}'.format(self.api_key)
         super().__init__(url, htaccess, verify_ssl, timeout, headers)
 
-    def __call__(self, entity, action, params):
-        """
-        :param str entity: CiviCRM-entitiy
-        :param str action: api call action
-        :param dict params: api call parameters
-        :return dict: api call result
-        :raises RequestError: when the api could not be accessed
-        :raises ApiError: when the api call failed
-        :raises InvalidJson: when the response is invalid json code
-        """
-        logger.info(f'Perform api call: {entity}.{action} with {params}')
+    def _perform_api_call(self, entity, action, params):
         params = dict(params=json.dumps(params))
         url_path = f'{entity}/{action}'
-        return super().__call__(params, url_path)
+        return self._perform_post_request(params, url_path)

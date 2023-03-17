@@ -1,5 +1,6 @@
 import invoke
 import shlex
+import json
 import logging
 from . import v3
 from . import v4
@@ -16,14 +17,8 @@ class BaseConsoleApi(BaseApi):
         self.cv = cv
         self.cwd = cwd
 
-        if self.VERSION == v3:
-            self.version = 'api3'
-        elif self.VERSION == v4:
-            self.version = 'api4'
-        else:
-            raise NotImplementedError('VERSION must be defined.')
-
     def _run(self, command):
+        logger.info(f'Run command: {command}')
         try:
             reply = invoke.run(command, hide=True)
         except Exception as exc:
@@ -36,33 +31,35 @@ class BaseConsoleApi(BaseApi):
             return reply
 
     def _get_command(self, entity, action, params):
-        cd_cwd = ['cd', f'{self.cwd}']
-        if isinstance(params, str):
-            params = shlex.split(params)
-        if isinstance(self.cv, str):
-            cv = shlex.split(self.cv)
-        api_call = cv + [self.version, f'{entity}.{action}'] + params
-        return shlex.join(cd_cwd) + ' && ' + shlex.join(api_call)
+        raise NotImplemented
 
-    def __call__(self, entity, action, params):
-        """
-        :param str entity: CiviCRM-entitiy
-        :param str action: api call action
-        :param dict params: api call parameters
-        :return dict: api call result
-        :raises InvokeError: when the api could not be accessed
-        :raises ApiError: when the api call failed
-        :raises InvalidJson: when the response is invalid json code
-        """
+    def _perform_api_call(self, entity, action, params):
         command = self._get_command(entity, action, params)
-        logger.info(f'Run command: {command}')
         reply = self._run(command)
-        return self._process_json_result(reply.stdout)
+        return reply.stdout
 
 
 class ConsoleApiV3(BaseConsoleApi):
     VERSION = v3
 
+    def _get_command(self, entity, action, params):
+        params['sequential'] = params.get('sequential', 1)
+        params = ['echo', json.dumps(params)]
+        cv = shlex.split(self.cv)
+        cwd = ['--cwd', f'{self.cwd}']
+        api = ['api3', f'{entity}.{action}', '--in=json']
+        command = cv + cwd + api
+        return '{} | {}'.format(shlex.join(params), shlex.join(command))
+
 
 class ConsoleApiV4(BaseConsoleApi):
     VERSION = v4
+
+    def _get_command(self, entity, action, params):
+        cv = shlex.split(self.cv)
+        cwd = ['--cwd', f'{self.cwd}']
+        api = ['api4', f'{entity}.{action}']
+        params = [json.dumps(params)]
+        command = cv + cwd + api + params
+        return shlex.join(command)
+
