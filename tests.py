@@ -163,6 +163,7 @@ class TestApiConstruction(unittest.TestCase):
         api = ConsoleApiV3('FAKE_CV', CWD)
         self.assertRaises(InvokeError, api.Contact.get)
 
+    @needs(URL)
     def test_render_api_errors(self):
         try:
             RestApiV4(URL, 'FAKE_API_KEY').Contact.get()
