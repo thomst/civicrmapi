@@ -4,7 +4,7 @@ import pprint
 from civicrmapi import __version__
 from civicrmapi import v3, v4
 from civicrmapi.errors import ApiError
-from civicrmapi.errors import HttpError
+from civicrmapi.errors import InvokeError
 from civicrmapi.base import BaseApi
 from civicrmapi.base import BaseEntity
 from civicrmapi.rest import RestApiV3
@@ -141,20 +141,45 @@ class TestApiConstruction(unittest.TestCase):
 
     @needs(URL, API_KEY, SITE_KEY, CV, CWD)
     def test_invalid_api_calls(self):
+        # Invalid api calls.
         api = RestApiV4(URL, API_KEY)
-        self.assertRaises(ApiError, api.Contact, 'foobar')
-        api = ConsoleApiV4(CV, CWD)
         self.assertRaises(ApiError, api.Contact, 'foobar')
         api = RestApiV3(URL, API_KEY, SITE_KEY)
         self.assertRaises(ApiError, api.Contact, 'foobar')
+        api = ConsoleApiV4(CV, CWD)
+        self.assertRaises(ApiError, api.Contact, 'foobar')
         api = ConsoleApiV3(CV, CWD)
         self.assertRaises(ApiError, api.Contact, 'foobar')
-        # pprint.pprint(api.Contact('foobar', dict(values=dict(contacttype='Foo'))))
 
-        # pprint.pprint(api.Contact.get(dict(limit=1)))
-        # pprint.pprint(api.Contact.get(dict(options=dict(limit=1))))
-        # pprint.pprint(api.Contact.get(dict(limit=1)))
-        # pprint.pprint(api.Contact.get(dict(options=dict(limit=1))))
+        # Invalid credentials.
+        api = RestApiV4(URL, 'FAKE_API_KEY')
+        self.assertRaises(ApiError, api.Contact.get)
+        api = RestApiV3(URL, 'FAKE_API_KEY', 'FAKE_SITE_KEY')
+        self.assertRaises(ApiError, api.Contact.get)
+
+        # Invalid cv command.
+        api = ConsoleApiV4('FAKE_CV', CWD)
+        self.assertRaises(InvokeError, api.Contact.get)
+        api = ConsoleApiV3('FAKE_CV', CWD)
+        self.assertRaises(InvokeError, api.Contact.get)
+
+    def test_render_api_errors(self):
+        try:
+            RestApiV4(URL, 'FAKE_API_KEY').Contact.get()
+        except ApiError as exc:
+            self.assertTrue('HTTP-CODE' in str(exc))
+        try:
+            RestApiV3(URL, 'FAKE_API_KEY', 'FAKE_SITE_KEY').Contact.get()
+        except ApiError as exc:
+            self.assertTrue('Invalid credential' in str(exc))
+        try:
+            ConsoleApiV4(CV, CWD).Contact('foobar')
+        except ApiError as exc:
+            self.assertTrue('version 4 does not exist' in str(exc))
+        try:
+            ConsoleApiV3(CV, CWD).Contact('foobar')
+        except ApiError as exc:
+            self.assertTrue('not-found' in str(exc))
 
 
 if __name__ == "__main__":
