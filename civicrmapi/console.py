@@ -63,7 +63,7 @@ class ConsoleApiV4(BaseConsoleApi):
         cv = shlex.split(self.cv)
         cwd = ['--cwd', shlex.quote(f'{self.cwd}')]
         api = ['api4', shlex.quote(f'{entity}.{action}')]
-        params = [shlex.quote(json.dumps(params))]
+        params = [shlex.quote(json.dumps(params))] if params else list()
         command = cv + cwd + api + params
         return ' '.join(command)
 
