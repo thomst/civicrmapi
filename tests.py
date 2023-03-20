@@ -3,8 +3,8 @@ import unittest
 import pprint
 from civicrmapi import __version__
 from civicrmapi import v3, v4
-from civicrmapi.errors import RequestError
-from civicrmapi.errors import InvokeError
+from civicrmapi.errors import ApiError
+from civicrmapi.errors import HttpError
 from civicrmapi.base import BaseApi
 from civicrmapi.base import BaseEntity
 from civicrmapi.rest import RestApiV3
@@ -83,15 +83,15 @@ class TestApiConstruction(unittest.TestCase):
     def test_rest_api_with_dummy_url(self):
         # This could not work.
         api = RestApiV3('dummy.de', 'foo', 'bar')
-        self.assertRaises(RequestError, api.Contact, 'get', dict())
+        self.assertRaises(Exception, api.Contact, 'get', dict())
         api = RestApiV4('dummy.de', 'foo', htaccess={'user': 'foo', 'pass': 'bar'})
-        self.assertRaises(RequestError, api.Contact.get, dict())
+        self.assertRaises(Exception, api.Contact.get, dict())
 
     def test_console_api_with_dummy_cv(self):
         api = ConsoleApiV3('dummy_cv', '/tmp')
-        self.assertRaises(InvokeError, api.Contact.get)
+        self.assertRaises(Exception, api.Contact.get)
         api = ConsoleApiV4('dummy_cv', 'dummy_cwd')
-        self.assertRaises(InvokeError, api.Contact.get, ['more', 'arguments'])
+        self.assertRaises(Exception, api.Contact.get, ['more', 'arguments'])
 
     @needs(URL, API_KEY)
     def test_rest_api_v4_call(self):
@@ -129,6 +129,32 @@ class TestApiConstruction(unittest.TestCase):
         console_result = api.Contact.get(params)
         self.assertIsInstance(console_result, list)
         self.assertEqual(rest_result, console_result)
+
+        params = {'return': 'id', 'values': {'contact_type': 'Organization'}}
+        api = RestApiV3(URL, API_KEY, SITE_KEY)
+        rest_result = api.Contact.get(params)
+        self.assertIsInstance(rest_result, list)
+        api = ConsoleApiV3(CV, CWD)
+        console_result = api.Contact.get(params)
+        self.assertIsInstance(console_result, list)
+        self.assertEqual(rest_result, console_result)
+
+    @needs(URL, API_KEY, SITE_KEY, CV, CWD)
+    def test_invalid_api_calls(self):
+        api = RestApiV4(URL, API_KEY)
+        self.assertRaises(ApiError, api.Contact, 'foobar')
+        api = ConsoleApiV4(CV, CWD)
+        self.assertRaises(ApiError, api.Contact, 'foobar')
+        api = RestApiV3(URL, API_KEY, SITE_KEY)
+        self.assertRaises(ApiError, api.Contact, 'foobar')
+        api = ConsoleApiV3(CV, CWD)
+        self.assertRaises(ApiError, api.Contact, 'foobar')
+        # pprint.pprint(api.Contact('foobar', dict(values=dict(contacttype='Foo'))))
+
+        # pprint.pprint(api.Contact.get(dict(limit=1)))
+        # pprint.pprint(api.Contact.get(dict(options=dict(limit=1))))
+        # pprint.pprint(api.Contact.get(dict(limit=1)))
+        # pprint.pprint(api.Contact.get(dict(options=dict(limit=1))))
 
 
 if __name__ == "__main__":

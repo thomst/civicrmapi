@@ -1,7 +1,7 @@
 import logging
 import json
 from .errors import ApiError
-from .errors import InvalidJson
+from .errors import InvalidJSON
 
 
 logger = logging.getLogger('civicrmapi')
@@ -89,15 +89,18 @@ class BaseApi:
         """
         try:
             result = json.loads(json_response)
-        except json.JSONDecodeError:
-            raise InvalidJson(json_response)
+        except json.JSONDecodeError as exc:
+            raise InvalidJSON(exc)
         else:
             logger.info(f'Valid json response.')
             logger.debug(f'Decoded json: {result}')
 
         # Check api-v3 result for an api error.
         if isinstance(result, dict) and result.get('is_error', False):
-                raise ApiError(result)
+            raise ApiError(result)
+        # Check api-v4 result for an api error.
+        elif isinstance(result, dict) and 'error_code' in result:
+            raise ApiError(result)
         else:
             return self._normalize_result_values(result)
 
@@ -109,6 +112,6 @@ class BaseApi:
         elif 'values' in result:
             return result['values']
         # Returning the result as dict as a fallback.
-        # (Don't know if that happens at all.)
+        # (That should not happen at all at all.)
         else:
             return result

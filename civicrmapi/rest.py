@@ -4,8 +4,9 @@ import json
 from . import v3
 from . import v4
 from .base import BaseApi
-from .errors import HttpError
+from .errors import ApiError
 from .errors import RequestError
+from .errors import HttpError
 
 
 logger = logging.getLogger('civicrmapi')
@@ -59,7 +60,11 @@ class BaseRestApi(BaseApi):
             logger.info(f'Post request done: {reply}')
             logger.debug(f'- text: {reply.text}')
 
-        if not reply.status_code == 200:
+        # Rest api v4 returns a http 500 for invalid api calls.
+        if reply.status_code == 500 and 'version 4 does not exist' in reply.text:
+            raise ApiError(reply)
+        # We use a HttpError for everything else that is not http 200.
+        elif not reply.status_code == 200:
             raise HttpError(reply)
         else:
             return reply.text

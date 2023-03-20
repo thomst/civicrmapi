@@ -6,6 +6,7 @@ from . import v3
 from . import v4
 from .base import BaseApi
 from .errors import InvokeError
+from .errors import ApiError
 
 
 logger = logging.getLogger('civicrmapi')
@@ -26,8 +27,11 @@ class BaseConsoleApi(BaseApi):
         else:
             logger.info(f'Running command finished [{reply.return_code}]')
             logger.debug(f'- stdout: {reply.stdout}')
-            if reply.stderr:
-                logger.warning(f'stderr: {reply.stderr}')
+            logger.debug(f'- stderr: {reply.stderr}')
+
+        if reply.stderr and not reply.stdout:
+            raise ApiError(reply)
+        else:
             return reply
 
     def _get_command(self, entity, action, params):
