@@ -7,14 +7,7 @@ class BaseException(Exception):
     """
     All exceptions possibly raised by civicrmapi inherit from BaseException.
     """
-    def _as_json(self, value):
-        try:
-            result = json.loads(value)
-        except json.JSONDecodeError:
-            return value
-        else:
-            return json.dumps(result, sort_keys=True, indent=4)
-
+    pass
 
 class RequestError(BaseException):
     """
@@ -37,29 +30,21 @@ class InvalidJSON(BaseException):
     pass
 
 
-class HttpError(BaseException):
-    """
-    Raised for all http requests with an error code.
-    (The RestApiV4 return a 500-code for invalid api calls. This will handeled
-    by an ApiError though.)
-    """
-    def __init__(self, reply):
-        self.reply = reply
-
-    def __str__(self):
-        msg = list()
-        msg.append(f'HTTP-CODE: {self.reply.status_code}')
-        msg.append('RESPONSE: {}'.format(self._as_json(self.reply.text)))
-        return '\n'.join(msg)
-
-
 class ApiError(BaseException):
     """
-    Raised for all api related errors.
+    Raised for all api related errors including all http error-codes.
     """
     def __init__(self,value, msg=None):
         self.value = value
         self.msg = msg
+
+    def _as_json(self, value):
+        try:
+            result = json.loads(value)
+        except json.JSONDecodeError:
+            return value
+        else:
+            return json.dumps(result, sort_keys=True, indent=4)
 
     def __str__(self):
         if self.msg:
