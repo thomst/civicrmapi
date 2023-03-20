@@ -8,7 +8,7 @@ from .errors import HttpError
 from .errors import RequestError
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('civicrmapi')
 
 
 class BaseRestApi(BaseApi):

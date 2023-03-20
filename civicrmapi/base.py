@@ -4,7 +4,7 @@ from .errors import ApiError
 from .errors import InvalidJson
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('civicrmapi')
 
 
 class BaseAction:

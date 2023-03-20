@@ -8,7 +8,7 @@ from .base import BaseApi
 from .errors import InvokeError
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('civicrmapi')
 
 
 class BaseConsoleApi(BaseApi):
