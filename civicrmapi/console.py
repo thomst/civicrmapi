@@ -43,13 +43,13 @@ class ConsoleApiV3(BaseConsoleApi):
     VERSION = v3
 
     def _get_command(self, entity, action, params):
-        params['sequential'] = params.get('sequential', 1)
-        params = ['echo', json.dumps(params)]
+        params['sequential'] = 1
+        params = ['echo', shlex.quote(json.dumps(params))]
         cv = shlex.split(self.cv)
-        cwd = ['--cwd', f'{self.cwd}']
-        api = ['api3', f'{entity}.{action}', '--in=json']
+        cwd = ['--cwd', shlex.quote(f'{self.cwd}')]
+        api = ['api3', shlex.quote(f'{entity}.{action}'), '--in=json']
         command = cv + cwd + api
-        return '{} | {}'.format(shlex.join(params), shlex.join(command))
+        return '{} | {}'.format(' '.join(params), ' '.join(command))
 
 
 class ConsoleApiV4(BaseConsoleApi):
@@ -57,9 +57,9 @@ class ConsoleApiV4(BaseConsoleApi):
 
     def _get_command(self, entity, action, params):
         cv = shlex.split(self.cv)
-        cwd = ['--cwd', f'{self.cwd}']
-        api = ['api4', f'{entity}.{action}']
-        params = [json.dumps(params)]
+        cwd = ['--cwd', shlex.quote(f'{self.cwd}')]
+        api = ['api4', shlex.quote(f'{entity}.{action}')]
+        params = [shlex.quote(json.dumps(params))]
         command = cv + cwd + api + params
-        return shlex.join(command)
+        return ' '.join(command)
 
