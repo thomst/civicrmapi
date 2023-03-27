@@ -1,3 +1,4 @@
+from .errors import BaseException
 from .errors import RequestError
 from .errors import InvokeError
 from .errors import InvalidJSON
