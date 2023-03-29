@@ -1,6 +1,6 @@
 import os
 import unittest
-import pprint
+import logging
 from civicrmapi import __version__
 from civicrmapi import v3, v4
 from civicrmapi.errors import ApiError
@@ -18,6 +18,9 @@ API_KEY = os.environ.get('APITEST_API_KEY', None)
 SITE_KEY = os.environ.get('APITEST_SITE_KEY', None)
 CV = os.environ.get('APITEST_CV', None)
 CWD = os.environ.get('APITEST_CWD', None)
+LOG_LEVEL = getattr(logging, os.environ.get('APITEST_LOG_LEVEL', 'warning').upper())
+
+logging.basicConfig(level=LOG_LEVEL)
 
 
 class needs:
