@@ -55,6 +55,7 @@ class ApiError(BaseException):
             msg.append(f'HTTP-CODE: {self.value.status_code}')
             msg.append('RESPONSE: {}'.format(self._as_json(self.value.text)))
         elif isinstance(self.value, invoke.runners.Result):
+            msg.append(f'COMMAND: {self.value.command}')
             msg.append(f'RETURN-CODE: {self.value.return_code}')
             msg.append('STDOUT: {}'.format(self._as_json(self.value.stdout)))
             msg.append('STDERR: {}'.format(self._as_json(self.value.stderr)))
