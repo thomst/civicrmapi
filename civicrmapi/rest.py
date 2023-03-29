@@ -13,13 +13,6 @@ logger = logging.getLogger('civicrmapi')
 
 class BaseRestApi(BaseApi):
     def __init__(self, url, htaccess=None, verify_ssl=True, timeout=None, headers=None):
-        """
-        :param str url: rest api endoint
-        :param dict htaccess: htaccess credentials with 'user' and 'pass' keys. (optional)
-        :param bool verify_ssl: Verify SSL-certificate or not. Default is True. (optional)
-        :param int timeout: Timeout in seconds. (optional)
-        :param dict headers: HTTP headers. (optional)
-        """
         super().__init__()
         self.url = url
         self.verify_ssl = verify_ssl
