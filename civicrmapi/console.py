@@ -48,12 +48,12 @@ class ConsoleApiV3(BaseConsoleApi):
 
     def _get_command(self, entity, action, params):
         params['sequential'] = 1
-        params = ['echo', shlex.quote(json.dumps(params))]
+        echo_params = ['echo', shlex.quote(json.dumps(params))]
         cv = shlex.split(self.cv)
         cwd = ['--cwd', shlex.quote(f'{self.cwd}')]
         api = ['api3', shlex.quote(f'{entity}.{action}'), '--in=json']
         command = cv + cwd + api
-        return '{} | {}'.format(' '.join(params), ' '.join(command))
+        return '{} | {}'.format(' '.join(echo_params), ' '.join(command))
 
 
 class ConsoleApiV4(BaseConsoleApi):
