@@ -13,12 +13,26 @@ logger = logging.getLogger('civicrmapi')
 
 
 class BaseConsoleApi(BaseApi):
-    def __init__(self, cv, cwd):
+    def __init__(self, cv, cwd, context=None):
+        """
+        :param str cv: cv command
+        :param str cwd: working directory for cv
+        :param str context:
+            If a context is given the original command will be tokenized and
+            given to the context as positional argument. The simplest context
+            migth be a 'sh -c'. But it could also be a docker-exec- or
+            ssh-command to run the api call within a docker container or on a
+            remote machine.
+        """
         super().__init__()
         self.cv = cv
         self.cwd = cwd
+        self.context = context
 
     def _run(self, command):
+        if self.context:
+            context = shlex.split(self.context)
+            command = '{} {}'.format(' '.join(context), shlex.quote(command))
         logger.info(f'Run command: {command}')
         try:
             reply = invoke.run(command, hide=True)
