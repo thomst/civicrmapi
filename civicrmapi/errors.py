@@ -52,6 +52,7 @@ class ApiError(BaseException):
         else:
             msg = list()
         if isinstance(self.value, requests.Response):
+            msg.append(f'URL: {self.value.url}')
             msg.append(f'HTTP-CODE: {self.value.status_code}')
             msg.append('RESPONSE: {}'.format(self._as_json(self.value.text)))
         elif isinstance(self.value, invoke.runners.Result):
