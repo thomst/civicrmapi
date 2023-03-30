@@ -22,7 +22,9 @@ class BaseConsoleApi(BaseApi):
         logger.info(f'Run command: {command}')
         try:
             reply = invoke.run(command, hide=True)
-        except Exception as exc:
+        except invoke.exceptions.UnexpectedExit as exc:
+            raise ApiError(exc.result)
+        except invoke.exceptions.Failure as exc:
             raise InvokeError(exc)
         else:
             logger.info(f'Running command finished [{reply.return_code}]')
