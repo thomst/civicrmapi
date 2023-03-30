@@ -32,7 +32,7 @@ class InvalidJSON(BaseException):
 
 class ApiError(BaseException):
     """
-    Raised for all api related errors including all http error-codes.
+    Raised for all api related errors as well as return-code and http errors.
     """
     def __init__(self,value, msg=None):
         self.value = value
