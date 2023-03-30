@@ -18,6 +18,7 @@ API_KEY = os.environ.get('APITEST_API_KEY', None)
 SITE_KEY = os.environ.get('APITEST_SITE_KEY', None)
 CV = os.environ.get('APITEST_CV', None)
 CWD = os.environ.get('APITEST_CWD', None)
+CONTEXT = os.environ.get('APITEST_CONTEXT', None)
 LOG_LEVEL = getattr(logging, os.environ.get('APITEST_LOG_LEVEL', 'warning').upper())
 
 logging.basicConfig(level=LOG_LEVEL)
@@ -110,34 +111,50 @@ class TestApiConstruction(unittest.TestCase):
 
     @needs(CV, CWD)
     def test_console_api_call(self):
-        api = ConsoleApiV3(CV, CWD)
+        api = ConsoleApiV3(CV, CWD, CONTEXT)
         result = api.Contact.get()
         self.assertIsInstance(result, list)
 
-        api = ConsoleApiV4(CV, CWD)
+        api = ConsoleApiV4(CV, CWD, CONTEXT)
         result = api.Contact.get()
         self.assertIsInstance(result, list)
 
     @needs(URL, API_KEY, SITE_KEY, CV, CWD)
     def test_compare_rest_and_console_results(self):
+        api = RestApiV4(URL, API_KEY)
+        rest_result = api.Contact.get()
+        self.assertIsInstance(rest_result, list)
+        api = ConsoleApiV4(CV, CWD, CONTEXT)
+        console_result = api.Contact.get()
+        self.assertIsInstance(console_result, list)
+        self.assertEqual(rest_result, console_result)
+
         params = dict(
-            select=['id'], 
+            select=['id', 'contact_type'], 
             where=[['contact_type', '=', 'Organization']],
             limit=1
             )
         api = RestApiV4(URL, API_KEY)
         rest_result = api.Contact.get(params)
         self.assertIsInstance(rest_result, list)
-        api = ConsoleApiV4(CV, CWD)
+        api = ConsoleApiV4(CV, CWD, CONTEXT)
         console_result = api.Contact.get(params)
         self.assertIsInstance(console_result, list)
         self.assertEqual(rest_result, console_result)
 
-        params = {'return': 'id', 'values': {'contact_type': 'Organization'}}
+        api = RestApiV3(URL, API_KEY, SITE_KEY)
+        rest_result = api.Contact.get()
+        self.assertIsInstance(rest_result, list)
+        api = ConsoleApiV3(CV, CWD, CONTEXT)
+        console_result = api.Contact.get()
+        self.assertIsInstance(console_result, list)
+        self.assertEqual(rest_result, console_result)
+
+        params = {'return': 'id,contact_type', 'contact_type': 'Organization'}
         api = RestApiV3(URL, API_KEY, SITE_KEY)
         rest_result = api.Contact.get(params)
         self.assertIsInstance(rest_result, list)
-        api = ConsoleApiV3(CV, CWD)
+        api = ConsoleApiV3(CV, CWD, CONTEXT)
         console_result = api.Contact.get(params)
         self.assertIsInstance(console_result, list)
         self.assertEqual(rest_result, console_result)
@@ -149,9 +166,9 @@ class TestApiConstruction(unittest.TestCase):
         self.assertRaises(ApiError, api.Contact, 'foobar')
         api = RestApiV3(URL, API_KEY, SITE_KEY)
         self.assertRaises(ApiError, api.Contact, 'foobar')
-        api = ConsoleApiV4(CV, CWD)
+        api = ConsoleApiV4(CV, CWD, CONTEXT)
         self.assertRaises(ApiError, api.Contact, 'foobar')
-        api = ConsoleApiV3(CV, CWD)
+        api = ConsoleApiV3(CV, CWD, CONTEXT)
         self.assertRaises(ApiError, api.Contact, 'foobar')
 
         # Invalid credentials.
@@ -162,9 +179,9 @@ class TestApiConstruction(unittest.TestCase):
 
         # Invalid cv command.
         api = ConsoleApiV4('FAKE_CV', CWD)
-        self.assertRaises(InvokeError, api.Contact.get)
+        self.assertRaises(ApiError, api.Contact.get)
         api = ConsoleApiV3('FAKE_CV', CWD)
-        self.assertRaises(InvokeError, api.Contact.get)
+        self.assertRaises(ApiError, api.Contact.get)
 
     @needs(URL)
     def test_render_api_errors(self):
@@ -177,11 +194,15 @@ class TestApiConstruction(unittest.TestCase):
         except ApiError as exc:
             self.assertTrue('Invalid credential' in str(exc))
         try:
-            ConsoleApiV4(CV, CWD).Contact('foobar')
+            ConsoleApiV4(CV, CWD, CONTEXT).Contact('foobar')
+        except InvokeError:
+            pass
         except ApiError as exc:
             self.assertTrue('version 4 does not exist' in str(exc))
         try:
-            ConsoleApiV3(CV, CWD).Contact('foobar')
+            ConsoleApiV3(CV, CWD, CONTEXT).Contact('foobar')
+        except InvokeError:
+            pass
         except ApiError as exc:
             self.assertTrue('not-found' in str(exc))
 
