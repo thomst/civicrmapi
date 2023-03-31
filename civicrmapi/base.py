@@ -26,22 +26,28 @@ class BaseAction:
 
 class BaseEntity:
     ENTITY = None
+    ACTIONS = list()
 
     def __init__(self, api):
         if not self.ENTITY:
             raise NotImplemented('ENTITY must be defined.')
         self._api = api
-        if api.VERSION:
-            self._add_actions(api.VERSION)
+        self._add_actions()
 
-    def _add_actions(self, version_mod):
-        for action in version_mod.ACTIONS:
-            if hasattr(self, action):
-                continue
-            else:
+    def _add_actions(self):
+        for action in self.ACTIONS + self._api.VERSION.ACTIONS:
+            if isinstance(action, str):
+                action_name = action
                 attrs = dict(ENTITY=self.ENTITY, ACTION=action)
                 action_class = type(action, (BaseAction,), attrs)
-                setattr(self, action, action_class(self._api))
+            elif isinstance(action, type) and issubclass(action, BaseAction):
+                action_name = action.__name__
+                action_class = action
+            else:
+                msg = 'ACTIONS item must be string or subclass of BaseAction.'
+                raise ValueError(msg)
+            if not hasattr(self, action_name):
+                setattr(self, action_name, action_class(self._api))
 
     def __call__(self, action, params=None):
         """
@@ -54,19 +60,26 @@ class BaseEntity:
 
 class BaseApi:
     VERSION = None
+    ENTITIES = list()
 
     def __init__(self):
         if not self.VERSION:
             raise NotImplemented('VERSION must be defined.')
+        self._add_entities()
 
-    def _add_entities(self, version_mod):
-        for entity in version_mod.ENTITIES:
-            if hasattr(version_mod, entity):
-                setattr(self, entity, getattr(version_mod, entity)(self))
+    def _add_entities(self):
+        for entity in self.ENTITIES + self.VERSION.ENTITIES:
+            if isinstance(entity, str):
+                entity_name = entity
+                entity_class = type(entity, (BaseEntity,), dict(ENTITY=entity))
+            elif isinstance(entity, type) and issubclass(entity, BaseEntity):
+                entity_name = entity.__name__
+                entity_class = entity
             else:
-                attrs = dict(ENTITY=entity)
-                entity_class = type(entity, (BaseEntity,), attrs)
-                setattr(self, entity, entity_class(self))
+                msg = 'ENTITIES item must be string or subclass of BaseEntity.'
+                raise ValueError(msg)
+            if not hasattr(self, entity_name):
+                setattr(self, entity_name, entity_class(self))
 
     def __call__(self, entity, action, params=None):
         """
