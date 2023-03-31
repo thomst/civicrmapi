@@ -62,7 +62,7 @@ class ApiTestCase(unittest.TestCase):
     def test_entity_initialization(self):
         api = self.base_api_v4()
         # Setup an entity class with a get attribute.
-        params = dict(get='fakemethod', newmethod='fakemethod')
+        params = dict(get='fakemethod', newmethod='fakemethod', ENTITY='Contact')
         entity_class = type('Contact', (BaseEntity,), params)
         entity = entity_class(api)
 
