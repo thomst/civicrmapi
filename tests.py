@@ -55,9 +55,13 @@ class ApiTestCase(unittest.TestCase):
         ]
         for api in apis:
             for entity in api.VERSION.ENTITIES:
-                self.assertTrue(hasattr(api, entity))
+                if isinstance(entity, str):
+                    entity_name = entity
+                else:
+                    entity_name = entity.__name__
+                self.assertTrue(hasattr(api, entity_name))
                 for action in api.VERSION.ACTIONS:
-                    self.assertTrue(hasattr(getattr(api, entity), action))
+                    self.assertTrue(hasattr(getattr(api, entity_name), action))
 
     def test_entity_initialization(self):
         api = self.base_api_v4()
@@ -76,13 +80,13 @@ class ApiTestCase(unittest.TestCase):
 
         # Add our Contact class to the v4 module and check if it will be added
         # to the base-api.
-        setattr(v4, 'Contact', entity_class)
+        self.base_api_v4.ENTITIES = [entity_class]
         api = self.base_api_v4()
         for action in v4.ACTIONS:
             self.assertTrue(hasattr(api.Contact, action))
         self.assertEqual(api.Contact.get, 'fakemethod')
         self.assertEqual(api.Contact.newmethod, 'fakemethod')
-        delattr(v4, 'Contact')
+        self.base_api_v4.ENTITIES = list()
 
     def test_rest_api_with_dummy_url(self):
         # This could not work.
