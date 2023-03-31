@@ -12,6 +12,8 @@ class BaseAction:
     ACTION = None
 
     def __init__(self, api):
+        if not self.ENTITY or not self.ACTION:
+            raise NotImplemented('ENTITY and ACTION must be defined.')
         self._api = api
 
     def __call__(self, params=None):
@@ -26,6 +28,8 @@ class BaseEntity:
     ENTITY = None
 
     def __init__(self, api):
+        if not self.ENTITY:
+            raise NotImplemented('ENTITY must be defined.')
         self._api = api
         if api.VERSION:
             self._add_actions(api.VERSION)
@@ -52,8 +56,8 @@ class BaseApi:
     VERSION = None
 
     def __init__(self):
-        if self.VERSION:
-            self._add_entities(self.VERSION)
+        if not self.VERSION:
+            raise NotImplemented('VERSION must be defined.')
 
     def _add_entities(self, version_mod):
         for entity in version_mod.ENTITIES:

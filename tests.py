@@ -38,7 +38,7 @@ class needs:
 
 
 
-class TestApiConstruction(unittest.TestCase):
+class ApiTestCase(unittest.TestCase):
 
     def setUp(self):
         self.base_api_v3 = type('api', (BaseApi,), dict(VERSION=v3))
