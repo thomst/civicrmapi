@@ -73,10 +73,9 @@ class BaseApi:
         :param str entity: CiviCRM-entitiy
         :param str action: api call action
         :param dict params: api call parameters (optional)
-        :return dict: api call result
+        :return dict: normalized api call result
         :raises RequestError: when the rest api could not be accessed
         :raises InvokeError: when the console api could not be accessed
-        :raises HttpError: when the rest api return an error code
         :raises ApiError: when the api call failed
         :raises InvalidJson: when the response is invalid json code
         """
