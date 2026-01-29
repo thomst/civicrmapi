@@ -133,10 +133,12 @@ class BaseApi:
         :param str action: api call action
         :param dict params: api call parameters (optional)
         :return dict: normalized api call result
-        :raises RequestError: when the rest api could not be accessed
-        :raises InvokeError: when the console api could not be accessed
-        :raises ApiError: when the api call failed
-        :raises InvalidJson: when the response is invalid json code
+
+        :raises:
+            - :class:`~civicrmapi.errors.RequestError`: when the rest api could not be accessed
+            - :class:`~civicrmapi.errors.InvokeError`: when the console api could not be accessed
+            - :class:`~civicrmapi.errors.ApiError`: when the api call failed
+            - :class:`~civicrmapi.errors.InvalidJSON`: when the response is invalid json code
         """
         logger.info(f'Perform api call: {entity}.{action} with {params}')
         result = self._perform_api_call(entity, action, params or dict())
