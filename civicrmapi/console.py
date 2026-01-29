@@ -13,17 +13,15 @@ logger = logging.getLogger('civicrmapi')
 
 
 class BaseConsoleApi(BaseApi):
+    """
+    Base class for CiviCRM Console API implementations. Subclasses must define the
+    :attr:`.VERSION` attribute and implement the :meth:`._get_command` method.
+
+    :raises NotImplemented: when VERSION is not defined
+    :raises NotImplemented: when :meth:`._get_command` is not implemented
+    """
+
     def __init__(self, cv, cwd=None, context=None):
-        """
-        :param str cv: cv command
-        :param str cwd: working directory for cv
-        :param str context:
-            If a context is given the original command will be tokenized and
-            given to the context as positional argument. The simplest context
-            migth be a 'sh -c'. But it could also be a docker-exec- or
-            ssh-command to run the api call within a docker container or on a
-            remote machine.
-        """
         super().__init__()
         self.cv = shlex.split(cv)
         self.cwd = ['--cwd', shlex.quote(f'{cwd}')] if cwd else list()
@@ -60,6 +58,18 @@ class BaseConsoleApi(BaseApi):
 
 
 class ConsoleApiV3(BaseConsoleApi):
+    """
+    Console API bindings for CiviCRM APIv3.
+
+    :param str cv: cv command
+    :param str cwd: working directory for cv
+    :param str context:
+        If a context is given the original command will be tokenized and
+        given to the context as positional argument. The simplest context
+        migth be a 'sh -c'. But it could also be a docker-exec- or
+        ssh-command to run the api call within a docker container or on a
+        remote machine.
+    """
     VERSION = v3
 
     def _get_command(self, entity, action, params):
@@ -71,6 +81,18 @@ class ConsoleApiV3(BaseConsoleApi):
 
 
 class ConsoleApiV4(BaseConsoleApi):
+    """
+    Console API bindings for CiviCRM APIv4.
+
+    :param str cv: cv command
+    :param str cwd: working directory for cv
+    :param str context:
+        If a context is given the original command will be tokenized and
+        given to the context as positional argument. The simplest context
+        migth be a 'sh -c'. But it could also be a docker-exec- or
+        ssh-command to run the api call within a docker container or on a
+        remote machine.
+    """
     VERSION = v4
 
     def _get_command(self, entity, action, params):

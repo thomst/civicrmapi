@@ -1,3 +1,7 @@
+"""
+This module defines default entities and actions for CiviCRM APIv3.
+"""
+
 ENTITIES = [
     'Acl',
     'AclRole',

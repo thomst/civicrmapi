@@ -8,8 +8,27 @@ logger = logging.getLogger('civicrmapi')
 
 
 class BaseAction:
+    """
+    Base class for CiviCRM API actions. Subclasses must define the
+    :attr:`.ENTITY` and :attr:`.ACTION` attributes.
+
+    By calling an instance of this class the specific api call will be
+    performed. See :meth:`.__call__`.
+
+    :param api: CiviCRM API instance
+    :type api: :class:`~civicrmapi.base.BaseApi`
+    :raises NotImplemented: when ENTITY is not defined
+    :raises NotImplemented: when ACTION is not defined
+    """
     ENTITY = None
+    """
+    The CiviCRM entity this action operates on. Set by a subclass of
+    :class:`~.BaseAction`.
+    """
     ACTION = None
+    """
+    The action name. Set by a subclass of :class:`~.BaseAction`.
+    """
 
     def __init__(self, api):
         if not self.ENTITY or not self.ACTION:
@@ -18,6 +37,8 @@ class BaseAction:
 
     def __call__(self, params=None):
         """
+        Perform the api call.
+
         :param dict params: api call parameters (optional)
         :return dict: api call result
         """
@@ -25,8 +46,31 @@ class BaseAction:
 
 
 class BaseEntity:
+    """
+    Base class for CiviCRM entities. Subclasses must define the :attr:`.ENTITY`
+    attribute.
+
+    This class will be initialized with all default actions defined for the
+    specific api version as attributes. By setting the :attr:`.ACTIONS` attribute
+    extra actions can be added.
+
+    By calling an instance of this class the specific api call will be
+    performed. See :meth:`.__call__`.
+
+    :param api: CiviCRM API instance
+    :type api: :class:`~civicrmapi.base.BaseApi`
+    :raises NotImplemented: when ENTITY is not defined
+    """
+
     ENTITY = None
+    """
+    The entity name. Set by a subclass of :class:`~.BaseEntity`.
+    """
     ACTIONS = list()
+    """
+    List of extra api actions for this entity. Set by a subclass of
+    :class:`~.BaseEntity`.
+    """
 
     def __init__(self, api):
         if not self.ENTITY:
@@ -51,6 +95,8 @@ class BaseEntity:
 
     def __call__(self, action, params=None):
         """
+        Perform an api call on this entity.
+
         :param str action: api call action
         :param dict params: api call parameters (optional)
         :return dict: api call result
@@ -59,8 +105,30 @@ class BaseEntity:
 
 
 class BaseApi:
+    """
+    Base CiviCRM API class. Subclasses must define the :attr:`.VERSION`
+    attribute and overwrite the :meth:`._perform_api_call` method.
+
+    This class will be initialized with all entities defined for its api version
+    (either :mod:`~civicrmapi.api_v3` or :mod:`~civicrmapi.api_v4`) added as
+    attributes. Use the :attr:`.ENTITIES` attribute to add extra entities.
+
+    By calling an instance of this class the specific api call will be
+    performed. See :meth:`.__call__`.
+
+    :raises NotImplemented: when VERSION is not defined
+    :raises NotImplemented: when :meth:`._perform_api_call` is not implemented
+    """
+
     VERSION = None
+    """
+    The CiviCRM API version. Either :mod:`~civicrmapi.api_v3` or
+    :mod:`~civicrmapi.api_v4`. Must be set by a subclass of :class:`~.BaseApi`.
+    """
     ENTITIES = list()
+    """
+    List of extra entities this api should work on.
+    """
 
     def __init__(self):
         if not self.VERSION:
@@ -83,6 +151,8 @@ class BaseApi:
 
     def __call__(self, entity, action, params=None):
         """
+        Perform an api call.
+
         :param str entity: CiviCRM-entitiy
         :param str action: api call action
         :param dict params: api call parameters (optional)
@@ -97,6 +167,9 @@ class BaseApi:
         return self._process_json_result(result)
 
     def _perform_api_call(self, entity, action, params):
+        """
+        Must be implemented by subclasses.
+        """
         raise NotImplemented
 
     def _process_json_result(self, json_response):

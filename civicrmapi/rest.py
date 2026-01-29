@@ -12,6 +12,13 @@ logger = logging.getLogger('civicrmapi')
 
 
 class BaseRestApi(BaseApi):
+    """
+    Base class for CiviCRM Rest API implementations. Subclasses must define the
+    :attr:`.VERSION` attribute and implement the :meth:`._perform_api_call` method.
+
+    :raises NotImplemented: when VERSION is not defined
+    :raises NotImplemented: when :meth:`._perform_api_call` is not implemented
+    """
     def __init__(self, url, htaccess=None, verify_ssl=True, timeout=None, headers=None):
         super().__init__()
         self.url = url
@@ -63,19 +70,18 @@ class BaseRestApi(BaseApi):
 
 class RestApiV3(BaseRestApi):
     """
-    Simple bindings for CiviCRM's RestApiv3.
+    API bindings for CiviCRM's RestApiv3.
+
+    :param str url: CiviCRM's base-url
+    :param str api_key: CiviCRM's api-key
+    :param str site_key: CiviCRM's api-site_key
+    :param dict htaccess: htaccess credentials with 'user' and 'pass' keys. (optional)
+    :param bool verify_ssl: Verify SSL-certificate or not. Default is True. (optional)
+    :param int timeout: Timeout in seconds. (optional)
     """
     VERSION = v3
 
     def __init__(self, url, api_key, site_key, htaccess=None, verify_ssl=True, timeout=None):
-        """
-        :param str url: CiviCRM's base-url
-        :param str api_key: CiviCRM's api-key
-        :param str site_key: CiviCRM's api-site_key
-        :param dict htaccess: htaccess credentials with 'user' and 'pass' keys. (optional)
-        :param bool verify_ssl: Verify SSL-certificate or not. Default is True. (optional)
-        :param int timeout: Timeout in seconds. (optional)
-        """
         self.api_key = api_key
         self.site_key = site_key
         url = url.rstrip('/') + '/civicrm/ajax/rest'
@@ -94,18 +100,17 @@ class RestApiV3(BaseRestApi):
 
 class RestApiV4(BaseRestApi):
     """
-    Simple bindings for CiviCRM's RestApiv4.
+    API bindings for CiviCRM's RestApiv4.
+
+    :param str url: CiviCRM's base-url
+    :param str api_key: CiviCRM's api-key
+    :param dict htaccess: htaccess credentials with 'user' and 'pass' keys. (optional)
+    :param bool verify_ssl: Verify SSL-certificate or not. Default is True. (optional)
+    :param int timeout: Timeout in seconds. (optional)
     """
     VERSION = v4
 
     def __init__(self, url, api_key, htaccess=None, verify_ssl=True, timeout=None):
-        """
-        :param str url: CiviCRM's base-url
-        :param str api_key: CiviCRM's api-key
-        :param dict htaccess: htaccess credentials with 'user' and 'pass' keys. (optional)
-        :param bool verify_ssl: Verify SSL-certificate or not. Default is True. (optional)
-        :param int timeout: Timeout in seconds. (optional)
-        """
         self.api_key = api_key
         url = url.rstrip('/') + '/civicrm/ajax/api4/'
         headers = dict()
