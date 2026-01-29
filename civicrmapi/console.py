@@ -33,6 +33,10 @@ class BaseConsoleApi(BaseApi):
             command = '{} {}'.format(' '.join(context), shlex.quote(command))
         logger.info(f'Run command: {command}')
         try:
+            # FIXME: Invoke produces warnings about unclosed file handles.
+            # ResourceWarning: unclosed file <_io.FileIO name=5 mode='rb' closefd=True>
+            # See https://github.com/pyinvoke/invoke/issues/665
+            # Maybe switch to subprocess.Popen()?
             reply = invoke.run(command, hide=True)
         except invoke.exceptions.UnexpectedExit as exc:
             raise ApiError(exc.result)
