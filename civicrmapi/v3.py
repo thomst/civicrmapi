@@ -131,6 +131,10 @@ ENTITIES = [
     'Website',
     'WordReplacement',
 ]
+"""
+All standard entities for CiviCRM APIv3.
+"""
+
 ACTIONS = [
     'create',
     'delete',
@@ -145,3 +149,6 @@ ACTIONS = [
     'replace',
     'getunique',
 ]
+"""
+All standard actions for CiviCRM APIv3.
+"""

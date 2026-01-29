@@ -10,6 +10,7 @@ console command `cv`.
 Getting Started
 ---------------
 There are four ready to use api classes:
+
 - :class:`~civicrmapi.rest.RestApiV3` - REST API bindings for CiviCRM APIv3
 - :class:`~civicrmapi.rest.RestApiV4` - REST API bindings for CiviCRM APIv4
 - :class:`~civicrmapi.console.ConsoleApiV3` - Using `cv` to access CiviCRM APIv3
@@ -30,14 +31,15 @@ All you need to do is to initialize the api of your choice and use it::
 Concepts
 --------
 There are three main base classes an api binding is built of:
+
 - :class:`~base.BaseApi` - Base class for all API implementations
 - :class:`~base.BaseEntity` - Base class for CiviCRM entities
 - :class:`~base.BaseAction` - Base class for CiviCRM actions
 
 Initializing an api class will automatically equip it with entities, which
 themselves are equipped with actions - each as instance attributes. And on each
-level of this hierarchy an api call can be performed, since the api, its
-entities as well as each action is callable.
+level of this hierarchy an api call can be performed. The api, its entities and
+their actions are all callable.
 
 The following ways of performing an api call are equivalent::
 
@@ -57,10 +59,9 @@ The following ways of performing an api call are equivalent::
 
 
 The standard entities and actions for each api version are defined within the
-the corresponding modules :mod:`~.v3` and :mod:`~.v4`. Extra entities and
-actions can be added by subclasses. You can also implement special behavior like
-custom validation, result parsing or error handling by writing your own api,
-entity or action subclasses.
+the corresponding modules :mod:`~.v3` and :mod:`~.v4`. You can also implement
+special behavior like custom validation, result parsing or error handling by
+writing your own api, entity or action subclasses.
 """
 
 from .base import BaseAction

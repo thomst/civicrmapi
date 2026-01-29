@@ -15,9 +15,9 @@ logger = logging.getLogger('civicrmapi')
 class BaseConsoleApi(BaseApi):
     """
     Base class for CiviCRM Console API implementations. Subclasses must define the
-    :attr:`.VERSION` attribute and implement the :meth:`._get_command` method.
+    :attr:`~base.BaseApi.VERSION` attribute and implement the :meth:`._get_command` method.
 
-    :raises NotImplemented: when VERSION is not defined
+    :raises NotImplemented: when :attr:`~base.BaseApi.VERSION` is not defined
     :raises NotImplemented: when :meth:`._get_command` is not implemented
     """
 

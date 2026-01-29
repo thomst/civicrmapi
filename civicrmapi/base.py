@@ -10,15 +10,15 @@ logger = logging.getLogger('civicrmapi')
 class BaseAction:
     """
     Base class for CiviCRM API actions. Subclasses must define the
-    :attr:`.ENTITY` and :attr:`.ACTION` attributes.
+    :attr:`~BaseAction.ENTITY` and :attr:`~BaseAction.ACTION` attributes.
 
     By calling an instance of this class the specific api call will be
-    performed. See :meth:`.__call__`.
+    performed. See :meth:`~BaseAction.__call__`.
 
     :param api: CiviCRM API instance
     :type api: :class:`~civicrmapi.base.BaseApi`
-    :raises NotImplemented: when ENTITY is not defined
-    :raises NotImplemented: when ACTION is not defined
+    :raises NotImplemented: when :attr:`~BaseAction.ENTITY` is not defined
+    :raises NotImplemented: when :attr:`~BaseAction.ACTION` is not defined
     """
     ENTITY = None
     """
@@ -49,18 +49,18 @@ class BaseAction:
 
 class BaseEntity:
     """
-    Base class for CiviCRM entities. Subclasses must define the :attr:`.ENTITY`
-    attribute.
+    Base class for CiviCRM entities. Subclasses must define the
+    :attr:`~BaseEntity.ENTITY` attribute.
 
     This class will be initialized with all default actions defined for the
     specific api version as attributes.
 
     By calling an instance of this class the specific api call will be
-    performed. See :meth:`.__call__`.
+    performed. See :meth:`~BaseEntity.__call__`.
 
     :param api: CiviCRM API instance
     :type api: :class:`~civicrmapi.base.BaseApi`
-    :raises NotImplemented: when ENTITY is not defined
+    :raises NotImplemented: when :attr:`~BaseEntity.ENTITY` is not defined
     """
 
     ENTITY = None
@@ -94,24 +94,24 @@ class BaseEntity:
 
 class BaseApi:
     """
-    Base CiviCRM API class. Subclasses must define the :attr:`.VERSION`
-    attribute and overwrite the :meth:`._perform_api_call` method.
+    Base CiviCRM API class. Subclasses must define the :attr:`~BaseApi.VERSION`
+    attribute and overwrite the :meth:`~BaseApi._perform_api_call` method.
 
-    This class will be initialized with all entities defined for its api version
-    (either :mod:`~civicrmapi.api_v3.ENTITIES` or
-    :mod:`~civicrmapi.api_v4.ENTITIES`) added as attributes.
+    This class will be initialized with the standard entities for the specific
+    api version as instance attributes. (See :mod:`~civicrmapi.v3` and
+    :mod:`~civicrmapi.v4`.)
 
     By calling an instance of this class the specific api call will be
-    performed. See :meth:`.__call__`.
+    performed. See :meth:`~BaseApi.__call__`.
 
-    :raises NotImplemented: when VERSION is not defined
+    :raises NotImplemented: when :attr:`~BaseApi.VERSION` is not defined
     :raises NotImplemented: when :meth:`._perform_api_call` is not implemented
     """
 
     VERSION = None
     """
-    The CiviCRM API version. Either :mod:`~civicrmapi.api_v3` or
-    :mod:`~civicrmapi.api_v4`. Must be set by a subclass of :class:`~.BaseApi`.
+    The CiviCRM API version. Use either :mod:`~civicrmapi.v3` or
+    :mod:`~civicrmapi.v4` in your subclass.
     """
 
     # FIXME: Add standard entities in __new__(), while extra entities in __init__()?

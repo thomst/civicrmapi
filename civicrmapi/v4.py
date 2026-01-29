@@ -116,6 +116,10 @@ ENTITIES = [
     'WorkflowMessage',
     'WorldRegion',
 ]
+"""
+All standard entities for CiviCRM APIv4.
+"""
+
 ACTIONS = [
     'checkAccess',
     'getActions',
@@ -127,3 +131,6 @@ ACTIONS = [
     'delete',
     'replace',
 ]
+"""
+All standard actions for CiviCRM APIv4.
+"""

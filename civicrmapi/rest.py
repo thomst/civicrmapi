@@ -14,9 +14,9 @@ logger = logging.getLogger('civicrmapi')
 class BaseRestApi(BaseApi):
     """
     Base class for CiviCRM Rest API implementations. Subclasses must define the
-    :attr:`.VERSION` attribute and implement the :meth:`._perform_api_call` method.
+    :attr:`~base.BaseApi.VERSION` attribute and implement the :meth:`._perform_api_call` method.
 
-    :raises NotImplemented: when VERSION is not defined
+    :raises NotImplemented: when :attr:`~base.BaseApi.VERSION` is not defined
     :raises NotImplemented: when :meth:`._perform_api_call` is not implemented
     """
     def __init__(self, url, htaccess=None, verify_ssl=True, timeout=None, headers=None):
