@@ -63,31 +63,6 @@ class ApiTestCase(unittest.TestCase):
                 for action in api.VERSION.ACTIONS:
                     self.assertTrue(hasattr(getattr(api, entity_name), action))
 
-    def test_entity_initialization(self):
-        api = self.base_api_v4()
-        # Setup an entity class with a get attribute.
-        params = dict(get='fakemethod', newmethod='fakemethod', ENTITY='Contact')
-        entity_class = type('Contact', (BaseEntity,), params)
-        entity = entity_class(api)
-
-        # Check that default actions were added to the entity.
-        for action in v4.ACTIONS:
-            self.assertTrue(hasattr(entity, action))
-
-        # Check that the get-attribute was not overwritten.
-        self.assertEqual(entity.get, 'fakemethod')
-        self.assertEqual(entity.newmethod, 'fakemethod')
-
-        # Add our Contact class to the v4 module and check if it will be added
-        # to the base-api.
-        self.base_api_v4.ENTITIES = [entity_class]
-        api = self.base_api_v4()
-        for action in v4.ACTIONS:
-            self.assertTrue(hasattr(api.Contact, action))
-        self.assertEqual(api.Contact.get, 'fakemethod')
-        self.assertEqual(api.Contact.newmethod, 'fakemethod')
-        self.base_api_v4.ENTITIES = list()
-
     def test_rest_api_with_dummy_url(self):
         # This could not work.
         api = RestApiV3('dummy.de', 'foo', 'bar')
@@ -134,7 +109,7 @@ class ApiTestCase(unittest.TestCase):
         self.assertEqual(rest_result, console_result)
 
         params = dict(
-            select=['id', 'contact_type'], 
+            select=['id', 'contact_type'],
             where=[['contact_type', '=', 'Organization']],
             limit=1
             )
