@@ -130,6 +130,7 @@ class BaseApi:
     List of extra entities this api should work on.
     """
 
+    # FIXME: Add standard entities in __new__(), while extra entities in __init__()?
     def __init__(self):
         if not self.VERSION:
             raise NotImplemented('VERSION must be defined.')
@@ -141,11 +142,15 @@ class BaseApi:
                 entity_name = entity
                 entity_class = type(entity, (BaseEntity,), dict(ENTITY=entity))
             elif isinstance(entity, type) and issubclass(entity, BaseEntity):
+                # FIXME: First try to use entity.ENTITY attribute.
                 entity_name = entity.__name__
                 entity_class = entity
             else:
                 msg = 'ENTITIES item must be string or subclass of BaseEntity.'
                 raise ValueError(msg)
+
+            # Avoid overwriting existing entities.
+            # FIXME: Transform entity name into snake case?
             if not hasattr(self, entity_name):
                 setattr(self, entity_name, entity_class(self))
 
@@ -201,6 +206,6 @@ class BaseApi:
         elif 'values' in result:
             return result['values']
         # Returning the result as dict as a fallback.
-        # (That should not happen at all at all.)
+        # (That should not happen at all.)
         else:
             return result
