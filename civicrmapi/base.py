@@ -31,9 +31,11 @@ class BaseAction:
     """
 
     def __init__(self, api):
+        self._api = api
+
+        # Raise NotImplemented if ENTITY or ACTIONis not defined.
         if not self.ENTITY or not self.ACTION:
             raise NotImplemented('ENTITY and ACTION must be defined.')
-        self._api = api
 
     def __call__(self, params=None):
         """
@@ -51,8 +53,7 @@ class BaseEntity:
     attribute.
 
     This class will be initialized with all default actions defined for the
-    specific api version as attributes. By setting the :attr:`.ACTIONS` attribute
-    extra actions can be added.
+    specific api version as attributes.
 
     By calling an instance of this class the specific api call will be
     performed. See :meth:`.__call__`.
@@ -66,32 +67,19 @@ class BaseEntity:
     """
     The entity name. Set by a subclass of :class:`~.BaseEntity`.
     """
-    ACTIONS = list()
-    """
-    List of extra api actions for this entity. Set by a subclass of
-    :class:`~.BaseEntity`.
-    """
 
     def __init__(self, api):
+        self._api = api
+
+        # Raise NotImplemented if ENTITY is not defined.
         if not self.ENTITY:
             raise NotImplemented('ENTITY must be defined.')
-        self._api = api
-        self._add_actions()
 
-    def _add_actions(self):
-        for action in self.ACTIONS + self._api.VERSION.ACTIONS:
-            if isinstance(action, str):
-                action_name = action
-                attrs = dict(ENTITY=self.ENTITY, ACTION=action)
-                action_class = type(action, (BaseAction,), attrs)
-            elif isinstance(action, type) and issubclass(action, BaseAction):
-                action_name = action.__name__
-                action_class = action
-            else:
-                msg = 'ACTIONS item must be string or subclass of BaseAction.'
-                raise ValueError(msg)
-            if not hasattr(self, action_name):
-                setattr(self, action_name, action_class(self._api))
+        # Add default actions defined in the api version module.
+        for action_name in self._api.VERSION.ACTIONS:
+            attrs = dict(ENTITY=self.ENTITY, ACTION=action_name)
+            action_class = type(action_name, (BaseAction,), attrs)
+            setattr(self, action_name, action_class(self._api))
 
     def __call__(self, action, params=None):
         """
@@ -110,8 +98,8 @@ class BaseApi:
     attribute and overwrite the :meth:`._perform_api_call` method.
 
     This class will be initialized with all entities defined for its api version
-    (either :mod:`~civicrmapi.api_v3` or :mod:`~civicrmapi.api_v4`) added as
-    attributes. Use the :attr:`.ENTITIES` attribute to add extra entities.
+    (either :mod:`~civicrmapi.api_v3.ENTITIES` or
+    :mod:`~civicrmapi.api_v4.ENTITIES`) added as attributes.
 
     By calling an instance of this class the specific api call will be
     performed. See :meth:`.__call__`.
@@ -125,34 +113,17 @@ class BaseApi:
     The CiviCRM API version. Either :mod:`~civicrmapi.api_v3` or
     :mod:`~civicrmapi.api_v4`. Must be set by a subclass of :class:`~.BaseApi`.
     """
-    ENTITIES = list()
-    """
-    List of extra entities this api should work on.
-    """
 
     # FIXME: Add standard entities in __new__(), while extra entities in __init__()?
     def __init__(self):
+        # Raise NotImplemented if VERSION is not defined.
         if not self.VERSION:
             raise NotImplemented('VERSION must be defined.')
-        self._add_entities()
 
-    def _add_entities(self):
-        for entity in self.ENTITIES + self.VERSION.ENTITIES:
-            if isinstance(entity, str):
-                entity_name = entity
-                entity_class = type(entity, (BaseEntity,), dict(ENTITY=entity))
-            elif isinstance(entity, type) and issubclass(entity, BaseEntity):
-                # FIXME: First try to use entity.ENTITY attribute.
-                entity_name = entity.__name__
-                entity_class = entity
-            else:
-                msg = 'ENTITIES item must be string or subclass of BaseEntity.'
-                raise ValueError(msg)
-
-            # Avoid overwriting existing entities.
-            # FIXME: Transform entity name into snake case?
-            if not hasattr(self, entity_name):
-                setattr(self, entity_name, entity_class(self))
+        # Add default entities defined in the api version module.
+        for entity in self.VERSION.ENTITIES:
+            entity_class = type(entity, (BaseEntity,), dict(ENTITY=entity))
+            setattr(self, entity, entity_class(self))
 
     def __call__(self, entity, action, params=None):
         """
