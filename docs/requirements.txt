@@ -1,0 +1,4 @@
+Sphinx
+sphinx-book-theme
+Django
+anytree
