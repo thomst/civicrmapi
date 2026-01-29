@@ -72,11 +72,20 @@ API v3 module
 .. automodule:: civicrmapi.v3
    :members:
 
+
 API v4 module
 -------------
 
 .. automodule:: civicrmapi.v4
    :members:
+
+
+Exceptions
+----------
+
+.. automodule:: civicrmapi.errors
+   :members:
+
 
 |
 
