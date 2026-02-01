@@ -29,6 +29,9 @@ jobs:
         pip install coverage wheel
         pip install --editable ./
 
+    - name: Install docker dependencies
+      run: sudo apt install -y docker-compose
+
     - name: Install civicrm docker
       run: ./install-docker-civicrm.sh
 
