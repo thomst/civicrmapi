@@ -1,6 +1,6 @@
 import json
 import requests
-import invoke
+import subprocess
 
 
 class BaseException(Exception):
@@ -16,9 +16,9 @@ class RequestError(BaseException):
     pass
 
 
-class InvokeError(BaseException):
+class SubprocessError(BaseException):
     """
-    A simple wrapper for all exceptions raised by invoke.
+    A simple wrapper for all exceptions raised by subprocess.
     """
     pass
 
@@ -55,9 +55,9 @@ class ApiError(BaseException):
             msg.append(f'URL: {self.value.url}')
             msg.append(f'HTTP-CODE: {self.value.status_code}')
             msg.append('RESPONSE: {}'.format(self._as_json(self.value.text)))
-        elif isinstance(self.value, invoke.runners.Result):
-            msg.append(f'COMMAND: {self.value.command}')
-            msg.append(f'RETURN-CODE: {self.value.return_code}')
+        elif isinstance(self.value, subprocess.CalledProcessError):
+            msg.append(f'COMMAND: {self.value.cmd}')
+            msg.append(f'RETURN-CODE: {self.value.returncode}')
             msg.append('STDOUT: {}'.format(self._as_json(self.value.stdout)))
             msg.append('STDERR: {}'.format(self._as_json(self.value.stderr)))
         elif isinstance(self.value, dict) or isinstance(self.value, list):

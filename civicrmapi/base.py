@@ -136,7 +136,7 @@ class BaseApi:
 
         :raises:
             - :class:`~civicrmapi.errors.RequestError`: when the rest api could not be accessed
-            - :class:`~civicrmapi.errors.InvokeError`: when the console api could not be accessed
+            - :class:`~civicrmapi.errors.SubprocessError`: when the console api could not be accessed
             - :class:`~civicrmapi.errors.ApiError`: when the api call failed
             - :class:`~civicrmapi.errors.InvalidJSON`: when the response is invalid json code
         """

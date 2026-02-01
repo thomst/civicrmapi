@@ -1,11 +1,11 @@
-import invoke
 import shlex
 import json
 import logging
+import subprocess
 from . import v3
 from . import v4
 from .base import BaseApi
-from .errors import InvokeError
+from .errors import SubprocessError
 from .errors import ApiError
 
 
@@ -21,29 +21,33 @@ class BaseConsoleApi(BaseApi):
     :raises NotImplemented: when :meth:`._get_command` is not implemented
     """
 
-    def __init__(self, cv, cwd=None, context=None):
+    def __init__(self, cv='cv', cwd=None, context=None):
         super().__init__()
         self.cv = shlex.split(cv)
         self.cwd = ['--cwd', shlex.quote(f'{cwd}')] if cwd else list()
-        self.context = context
+        self.context = shlex.split(context) if context else None
 
     def _run(self, command):
+        # To run the command within a given context we tokenize the original
+        # command and give it as positional argument to the context.
         if self.context:
-            context = shlex.split(self.context)
-            command = '{} {}'.format(' '.join(context), shlex.quote(command))
+            command = f'{" ".join(self.context)} {shlex.quote(command)}'
+
+        # Log the command.
         logger.info(f'Run command: {command}')
+
+        # Run the command.
         try:
-            # FIXME: Invoke produces warnings about unclosed file handles.
-            # ResourceWarning: unclosed file <_io.FileIO name=5 mode='rb' closefd=True>
-            # See https://github.com/pyinvoke/invoke/issues/665
-            # Maybe switch to subprocess.Popen()?
-            reply = invoke.run(command, hide=True)
-        except invoke.exceptions.UnexpectedExit as exc:
-            raise ApiError(exc.result)
-        except invoke.exceptions.Failure as exc:
-            raise InvokeError(exc)
+            reply = subprocess.run(command, shell=True, capture_output=True, check=True, text=True)
+
+        # Handle possible exceptions.
+        # FIXME: Simplify the exception classes and just raise the original exceptions?
+        except subprocess.CalledProcessError as exc:
+            raise ApiError(exc)
+        except (OSError, ValueError, subprocess.TimeoutExpired) as exc:
+            raise SubprocessError(exc)
         else:
-            logger.info(f'Running command finished [{reply.return_code}]')
+            logger.info(f'Running command finished [{reply.returncode}]')
             logger.debug(f'- stdout: {reply.stdout}')
             logger.debug(f'- stderr: {reply.stderr}')
 

@@ -69,7 +69,7 @@ from .base import BaseEntity
 from .base import BaseApi
 from .errors import BaseException
 from .errors import RequestError
-from .errors import InvokeError
+from .errors import SubprocessError
 from .errors import InvalidJSON
 from .errors import ApiError
 from .rest import RestApiV3
