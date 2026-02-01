@@ -30,7 +30,7 @@ jobs:
         pip install --editable ./
 
     - name: Install civicrm docker
-      run: ./install_civicrm_docker.sh
+      run: ./install-docker-civicrm.sh
 
     - name: Run Tests
       run: coverage run --source=civicrmapi/ -m unittest tests.py
