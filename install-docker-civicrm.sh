@@ -37,9 +37,9 @@ done
 
 # Check if the settings file already exists. Otherwise install civicrm.
 echo "Checking if CiviCRM is already installed..."
-if ! docker-compose exec app test -f ./private/civicrm.settings.php; then
-    echo -e "\nCiviCRM not installed. Installing CiviCRM..."
-    docker-compose exec \
+if ! docker-compose exec -T app test -f ./private/civicrm.settings.php; then
+    echo "CiviCRM not installed. Installing CiviCRM..."
+    docker-compose exec -T \
         -u www-data \
         -e CIVICRM_ADMIN_USER="$CIVICRM_ADMIN_USER" \
         -e CIVICRM_ADMIN_PASS="$CIVICRM_ADMIN_PASS" \
@@ -48,7 +48,7 @@ fi
 
 # Set api key for admin user.
 echo "Setting API key for admin user and writing to json file..."
-docker-compose exec app \
+docker-compose exec -T app \
     cv api4 Contact.update \
     +v "api_key=$CIVICRM_ADMIN_API_KEY" \
     +w 'id = 2' \
@@ -56,6 +56,6 @@ docker-compose exec app \
 
 # Write civicrm vars to json-config-file.
 echo "Writing CiviCRM vars to json file..."
-docker-compose exec -u www-data app \
+docker-compose exec -T -u www-data app \
     cv vars:show --out=json-pretty \
     > "$CIVICRM_VARS_JSON_FILE" || exit
