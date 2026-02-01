@@ -29,6 +29,9 @@ jobs:
         pip install coverage wheel
         pip install --editable ./
 
+    - name: Install civicrm docker
+      run: ./install_civicrm_docker.sh
+
     - name: Run Tests
       run: coverage run --source=civicrmapi/ -m unittest tests.py
 
