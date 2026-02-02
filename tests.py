@@ -6,6 +6,7 @@ from pathlib import Path
 from civicrmapi import __version__
 from civicrmapi import v3, v4
 from civicrmapi.errors import ApiError
+from civicrmapi.errors import RequestError
 from civicrmapi.errors import SubprocessError
 from civicrmapi.base import BaseApi
 from civicrmapi.rest import RestApiV3
@@ -87,15 +88,15 @@ class ApiTestCase(unittest.TestCase):
     def test_rest_api_with_dummy_url(self):
         # This could not work.
         api = RestApiV3('dummy.de', 'foo', 'bar')
-        self.assertRaises(Exception, api.Contact, 'get', dict())
+        self.assertRaises(RequestError, api.Contact, 'get', dict())
         api = RestApiV4('dummy.de', 'foo', htaccess={'user': 'foo', 'pass': 'bar'})
-        self.assertRaises(Exception, api.Contact.get, dict())
+        self.assertRaises(RequestError, api.Contact.get, dict())
 
     def test_console_api_with_dummy_cv(self):
-        api = ConsoleApiV3('dummy_cv', '/tmp')
-        self.assertRaises(Exception, api.Contact.get)
-        api = ConsoleApiV4('dummy_cv', 'dummy_cwd')
-        self.assertRaises(Exception, api.Contact.get, ['more', 'arguments'])
+        api = ConsoleApiV3('dummy-cv', '/tmp')
+        self.assertRaises(ApiError, api.Contact.get)
+        api = ConsoleApiV4('dummy-cv', 'dummy_cwd')
+        self.assertRaises(ApiError, api.Contact.get, ['more', 'arguments'])
 
     @needs(CIVI_CONFIG)
     def test_rest_api_v4_call(self):
