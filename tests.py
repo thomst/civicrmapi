@@ -22,7 +22,7 @@ CIVICRM_VARS_JSON_FILE = Path(PATH_TO_CIVICRM_DOCKER) / 'civicrm-vars-data.json'
 
 # Setup some defaults to work with the api of the CiviCRM test installation.
 CV = 'cv'
-CONTEXT = 'docker-compose exec app bash -c'
+CONTEXT = 'docker-compose exec -T app bash -c'
 
 # Get relevant config data from json files if they exist.
 CIVI_CONFIG = dict()
