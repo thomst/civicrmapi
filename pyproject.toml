@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "civicrmapi"
+dynamic = ["version"]
+description = "Connect with the CiviCRM APIv3 and APIv4 via HTTP and cv."
+readme = "README.rst"
+license = {text = "BSD License"}
+authors = [{name = "Thomas Leichtfuß", email = "thomas.leichtfuss@posteo.de"}]
+requires-python = ">=3.7"
+dependencies = ["requests"]
+classifiers = [
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Libraries",
+]
+
+[project.urls]
+Homepage = "https://github.com/thomst/civicrmapi"
+Repository = "https://github.com/thomst/dcivicrmapi"
+Documentation = "https://thomst.github.io/civicrmapi/"
+
+[tool.setuptools]
+packages = ["civicrmapi"]
+
+[tool.setuptools.dynamic]
+version = {attr = "civicrmapi.__version__.__version__"}
