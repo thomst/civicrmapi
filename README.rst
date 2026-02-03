@@ -10,8 +10,8 @@ Welcome to civicrmapi
    :target: https://github.com/thomst/civicrmapi/actions/workflows/tests.yml
    :alt: Tests
 
-.. image:: https://coveralls.io/repos/github/thomst/civicrmapi/badge.svg?branch=master
-   :target: https://coveralls.io/github/thomst/civicrmapi?branch=master
+.. image:: https://coveralls.io/repos/github/thomst/civicrmapi/badge.svg?branch=main
+   :target: https://coveralls.io/github/thomst/civicrmapi?branch=main
    :alt: Coveralls
 
 
