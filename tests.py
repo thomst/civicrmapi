@@ -59,14 +59,15 @@ pprint.pprint(SETUP)
 class ApiTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.apis = dict()
-        self.apis['rest_v4'] = RestApiV4(SETUP['url'], SETUP['api_key'])
-        self.apis['rest_v3'] = RestApiV3(SETUP['url'], SETUP['api_key'], SETUP['site_key'])
-        self.apis['cv_v4'] = ConsoleApiV4(SETUP['cv'], context=SETUP['context'])
-        self.apis['cv_v3'] = ConsoleApiV3(SETUP['cv'], context=SETUP['context'])
+        self.apis = dict(v3=dict(), v4=dict())
+        self.apis['v3']['rest'] = RestApiV3(SETUP['url'], SETUP['api_key'], SETUP['site_key'])
+        self.apis['v3']['cv'] = ConsoleApiV3(SETUP['cv'], context=SETUP['context'])
+        self.apis['v4']['rest'] = RestApiV4(SETUP['url'], SETUP['api_key'])
+        self.apis['v4']['cv'] = ConsoleApiV4(SETUP['cv'], context=SETUP['context'])
+        self.apis['all'] = [a for apis in self.apis.values() for a in apis.values()]
 
     def test_api_initialization(self):
-        for api in self.apis.values():
+        for api in self.apis['all']:
             for entity in api.VERSION.ENTITIES:
                 if isinstance(entity, str):
                     entity_name = entity
@@ -98,38 +99,35 @@ class ApiTestCase(unittest.TestCase):
             api.Contact.get()
 
     @unittest.skipIf(not SETUP, 'No test installation setup found.')
-    def test_rest_api_v3_call(self):
-        result = self.apis['rest_v3'].Contact.get()
-        self.assertIsInstance(result, list)
+    def test_simple_api_call(self):
+        for api in self.apis['all']:
+            result = api.Contact.get()
+            self.assertIsInstance(result, list)
 
-    @unittest.skipIf(not SETUP, 'No test installation setup found.')
-    def test_rest_api_v4_call(self):
-        result = self.apis['rest_v4'].Contact.get()
-        self.assertIsInstance(result, list)
+    def test_create_api_call(self):
+        params = {'contact_id': 2, 'email': 'email@example.de'}
+        for api in self.apis['v3'].values():
+            result = api.Email.create(params)
+            self.assertIsInstance(result, list)
 
-    @unittest.skipIf(not SETUP, 'No test installation setup found.')
-    def test_console_api_v3_call(self):
-        result = self.apis['cv_v3'].Contact.get()
-        self.assertIsInstance(result, list)
-
-    @unittest.skipIf(not SETUP, 'No test installation setup found.')
-    def test_console_api_v4_call(self):
-        result = self.apis['cv_v4'].Contact.get()
-        self.assertIsInstance(result, list)
+        params = {'values': {'contact_id': 2, 'email': 'email@example.de'}}
+        for api in self.apis['v4'].values():
+            result = api.Email.create(params)
+            self.assertIsInstance(result, list)
 
     @unittest.skipIf(not SETUP, 'No test installation setup found.')
     def test_compare_api_results(self):
         # Simple api v3 call.
-        rest_result = self.apis['rest_v3'].Contact.get()
+        rest_result = self.apis['v3']['rest'].Contact.get()
         self.assertIsInstance(rest_result, list)
-        console_result = self.apis['cv_v3'].Contact.get()
+        console_result = self.apis['v3']['cv'].Contact.get()
         self.assertIsInstance(console_result, list)
         self.assertEqual(rest_result, console_result)
 
         # Simple api v4 call.
-        rest_result = self.apis['rest_v4'].Contact.get()
+        rest_result = self.apis['v4']['rest'].Contact.get()
         self.assertIsInstance(rest_result, list)
-        console_result = self.apis['cv_v4'].Contact.get()
+        console_result = self.apis['v4']['cv'].Contact.get()
         self.assertIsInstance(console_result, list)
         self.assertEqual(rest_result, console_result)
 
@@ -139,43 +137,43 @@ class ApiTestCase(unittest.TestCase):
             where=[['contact_type', '=', 'Organization']],
             limit=1
             )
-        rest_result = self.apis['rest_v4'].Contact.get(params)
+        rest_result = self.apis['v4']['rest'].Contact.get(params)
         self.assertIsInstance(rest_result, list)
-        console_result = self.apis['cv_v4'].Contact.get(params)
+        console_result = self.apis['v4']['cv'].Contact.get(params)
         self.assertIsInstance(console_result, list)
         self.assertEqual(rest_result, console_result)
 
         # Use a more complex api v3 call.
         params = {'return': 'id,contact_type', 'contact_type': 'Organization'}
-        rest_result = self.apis['rest_v3'].Contact.get(params)
+        rest_result = self.apis['v3']['rest'].Contact.get(params)
         self.assertIsInstance(rest_result, list)
-        console_result = self.apis['cv_v3'].Contact.get(params)
+        console_result = self.apis['v3']['cv'].Contact.get(params)
         self.assertIsInstance(console_result, list)
         self.assertEqual(rest_result, console_result)
 
     @unittest.skipIf(not SETUP, 'No test installation setup found.')
     def test_invalid_entity(self):
-        for api in self.apis.values():
+        for api in self.apis['all']:
             with self.assertRaises(InvalidApiCall):
                 api('Foobar', 'get')
 
     @unittest.skipIf(not SETUP, 'No test installation setup found.')
     def test_invalid_action(self):
-        for api in self.apis.values():
+        for api in self.apis['all']:
             with self.assertRaises(InvalidApiCall):
                 api.Contact('foobar')
 
     @unittest.skipIf(not SETUP, 'No test installation setup found.')
     def test_invalid_field(self):
         params = {'foo': 'bar'}
-        for api in self.apis.values():
+        for api in self.apis['all']:
             with self.assertRaises(InvalidApiCall):
                 api.Contact.create(params)
 
     @unittest.skipIf(not SETUP, 'No test installation setup found.')
     def test_invalid_value(self):
         params = {'contact_id': 'not-a-number', 'email': 'not-an-email-address'}
-        for api in self.apis.values():
+        for api in self.apis['all']:
             with self.assertRaises(InvalidApiCall):
                 api.Email.create(params)
 
