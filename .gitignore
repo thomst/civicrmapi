@@ -8,3 +8,4 @@ __pycache__/
 /.tox/
 /.vscode/
 /docs/build/
+/civicrm-docker/
