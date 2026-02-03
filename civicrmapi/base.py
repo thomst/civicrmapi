@@ -1,7 +1,7 @@
 import logging
 import json
-from .errors import ApiError
-from .errors import InvalidJSON
+from .errors import InvalidApiCall
+from .errors import InvalidResponse
 
 
 logger = logging.getLogger('civicrmapi')
@@ -133,52 +133,75 @@ class BaseApi:
         :param str action: api call action
         :param dict params: api call parameters (optional)
         :return dict: normalized api call result
-
-        :raises:
-            - :class:`~civicrmapi.errors.RequestError`: when the rest api could not be accessed
-            - :class:`~civicrmapi.errors.SubprocessError`: when the console api could not be accessed
-            - :class:`~civicrmapi.errors.ApiError`: when the api call failed
-            - :class:`~civicrmapi.errors.InvalidJSON`: when the response is invalid json code
         """
         logger.info(f'Perform api call: {entity}.{action} with {params}')
-        result = self._perform_api_call(entity, action, params or dict())
-        return self._process_json_result(result)
+        response = self._perform_api_call(entity, action, params or dict())
+        data = self._get_data_from_response(response)
+        data = self._check_api_response(data)
+        return self._normalize_result_values(data)
 
     def _perform_api_call(self, entity, action, params):
         """
         Must be implemented by subclasses.
+
+        :param str entity: CiviCRM-entitiy
+        :param str action: api call action
+        :param dict params: api call parameters (optional)
+        :return dict: api response data
         """
         raise NotImplemented
 
-    def _process_json_result(self, json_response):
+    def _get_data_from_response(self, response):
         """
-        Called by __call__ to process json response.
+        Takes a response object (either a requests response instance or a
+        subprocess completed process instance) and try to parse it as json data.
+
+        :param requests or subprocess response: response instance
+        :return dict: api response data
+
+        :raises InvalidResponse: when the response value is no valid json
         """
+        value = response.text if hasattr(response, 'text') else response.stdout
         try:
-            result = json.loads(json_response)
-        except json.JSONDecodeError as exc:
-            raise InvalidJSON(exc)
+            data = json.loads(value)
+        except json.JSONDecodeError:
+            raise InvalidResponse(response)
         else:
-            logger.info(f'Valid json response.')
-            logger.debug(f'Decoded json: {result}')
+            return data
 
-        # Check api-v3 result for an api error.
-        if isinstance(result, dict) and result.get('is_error', False):
-            raise ApiError(result)
-        # Check api-v4 result for an api error.
-        elif isinstance(result, dict) and 'error_code' in result:
-            raise ApiError(result)
+    def _check_api_response(self, data):
+        """
+        Process the json response from an api call.
+
+        :param dict data: api response data
+        :return dict: api response data
+
+        :raises InvalidApiCall: when an error code is found in the api response
+        """
+        # Check api-v3 data for an api error.
+        if isinstance(data, dict) and data.get('is_error', False):
+            raise InvalidApiCall(data)
+        # Check api-v4 data for an api error.
+        elif isinstance(data, dict) and 'error_code' in data:
+            raise InvalidApiCall(data)
         else:
-            return self._normalize_result_values(result)
+            return data
 
-    def _normalize_result_values(self, result):
+    def _normalize_result_values(self, data):
+        """
+        Normalize api v3 and v4 response. Always return api results as a list.
+
+        :param dict data: api response data
+        :return dict: normalized api response data
+
+        :raises InvalidResponse: when data has not the expected type or keys.
+        """
         # Console api v4 returns values as list.
-        if isinstance(result, list):
-            return result
-        # If we have a dict with values we return only those.
-        elif 'values' in result:
-            return result['values']
-        # Returning the result as dict as a fallback.
-        # (That should not happen at all.)
+        if isinstance(data, list):
+            return data
+        # If we have a dict with values we return the values list instead.
+        elif 'values' in data:
+            return data['values']
+        # Otherwise something is weird. We raise InvalidResponse exception.
         else:
-            return result
+            raise InvalidResponse(data)

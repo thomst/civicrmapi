@@ -4,8 +4,7 @@ import json
 from . import v3
 from . import v4
 from .base import BaseApi
-from .errors import ApiError
-from .errors import RequestError
+from .errors import InvalidApiCall
 
 
 logger = logging.getLogger('civicrmapi')
@@ -52,17 +51,22 @@ class BaseRestApi(BaseApi):
                 verify=self.verify_ssl,
                 auth=self.auth,
                 timeout=self.timeout,
-                headers=self.headers)
-        except requests.exceptions.RequestException as exc:
-            raise RequestError(exc)
-        else:
-            logger.info(f'Post request done: {reply}')
-            logger.debug(f'- text: {reply.text}')
+                headers=self.headers
+                )
 
-        if not reply.status_code == 200:
-            raise ApiError(reply)
+        # Any http request related error like invalid url or network issues.
+        except requests.exceptions.RequestException:
+            raise
+
         else:
-            return reply.text
+            logger.info(f'Request result: {reply}')
+
+            # ApiV4 uses status code 401 for invalid credentials.
+            if reply.status_code == 401:
+                raise InvalidApiCall(reply.text)
+
+            else:
+                return reply
 
     def _perform_api_call(self, entity, action, params):
         raise NotImplemented

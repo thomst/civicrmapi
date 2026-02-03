@@ -5,8 +5,7 @@ import subprocess
 from . import v3
 from . import v4
 from .base import BaseApi
-from .errors import SubprocessError
-from .errors import ApiError
+from .errors import InvalidApiCall
 
 
 logger = logging.getLogger('civicrmapi')
@@ -21,13 +20,20 @@ class BaseConsoleApi(BaseApi):
     :raises NotImplemented: when :meth:`._get_command` is not implemented
     """
 
+    # FIXME: Instead of using cwd, cv --cwd=/path/to/civicrm could be used directly
+    # as cv parameter. There should be a hint within the docs.
     def __init__(self, cv='cv', cwd=None, context=None):
         super().__init__()
         self.cv = shlex.split(cv)
         self.cwd = ['--cwd', shlex.quote(f'{cwd}')] if cwd else list()
         self.context = shlex.split(context) if context else None
 
-    def _run(self, command):
+    def _get_command(self, entity, action, params):
+        raise NotImplemented
+
+    def _perform_api_call(self, entity, action, params):
+        command = self._get_command(entity, action, params)
+
         # To run the command within a given context we tokenize the original
         # command and give it as positional argument to the context.
         if self.context:
@@ -40,29 +46,30 @@ class BaseConsoleApi(BaseApi):
         try:
             reply = subprocess.run(command, shell=True, capture_output=True, check=True, text=True)
 
-        # Handle possible exceptions.
-        # FIXME: Simplify the exception classes and just raise the original exceptions?
         except subprocess.CalledProcessError as exc:
-            raise ApiError(exc)
-        except (OSError, ValueError, subprocess.TimeoutExpired) as exc:
-            raise SubprocessError(exc)
-        else:
-            logger.info(f'Running command finished [{reply.returncode}]')
-            logger.debug(f'- stdout: {reply.stdout}')
-            logger.debug(f'- stderr: {reply.stderr}')
+            # Unfortunately we have no chance to identify invalid api calls by
+            # just the return code. So we need some further diggin.
 
-        if reply.stderr and not reply.stdout:
-            raise ApiError(reply)
+            # If we have json formatted stdout we probably have an invalid api
+            # v3 call.
+            try:
+                data = json.loads(exc.stdout)
+            except json.JSONDecodeError:
+                pass
+            else:
+                raise InvalidApiCall(data)
+
+            # An invalid api v4 call should be contain this pattern in stderr.
+            if 'api4 [--in IN] [--out OUT]'.lower() in exc.stderr.lower():
+                raise InvalidApiCall(exc)
+
+            # For everything else we UnkownConsoleError.
+            else:
+                raise exc
+
         else:
+            logger.info(f'Command result: {reply}')
             return reply
-
-    def _get_command(self, entity, action, params):
-        raise NotImplemented
-
-    def _perform_api_call(self, entity, action, params):
-        command = self._get_command(entity, action, params)
-        reply = self._run(command)
-        return reply.stdout
 
 
 class ConsoleApiV3(BaseConsoleApi):

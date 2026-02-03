@@ -67,11 +67,8 @@ writing your own api, entity or action subclasses.
 from .base import BaseAction
 from .base import BaseEntity
 from .base import BaseApi
-from .errors import BaseException
-from .errors import RequestError
-from .errors import SubprocessError
-from .errors import InvalidJSON
-from .errors import ApiError
+from .errors import InvalidApiCall
+from .errors import InvalidResponse
 from .rest import RestApiV3
 from .rest import RestApiV4
 from .console import ConsoleApiV3
