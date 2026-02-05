@@ -17,8 +17,15 @@ Welcome to civicrmapi
 
 Description
 ===========
-Clean and simple bindings to CiviCRM's API. Both APIv3 and APIv4 are supported.
-CiviCRM's API can be accessed either via REST or the command line tool `cv`.
+Clean and simple bindings to `CiviCRM`_'s `API`_. Both `APIv3`_ and `APIv4`_ are
+supported. CiviCRM's API can be accessed either via REST or the command line
+tool `cv`_.
+
+.. _CiviCRM: https://docs.civicrm.org/
+.. _API: https://docs.civicrm.org/dev/en/latest/api/
+.. _APIv3: https://docs.civicrm.org/dev/en/latest/api/v3/usage/
+.. _APIv4: https://docs.civicrm.org/dev/en/latest/api/v4/usage/
+.. _cv: https://github.com/civicrm/cv
 
 
 Installation
@@ -32,10 +39,16 @@ Getting started
 ===============
 There are four ready to use api classes:
 
-- `RestApiV3` - REST API bindings for CiviCRM APIv3
-- `RestApiV4` - REST API bindings for CiviCRM APIv4
-- `ConsoleApiV3` - Using `cv` to access CiviCRM APIv3
-- `ConsoleApiV4` - Using `cv` to access CiviCRM APIv4
+- `RestApiV3`_ - REST API bindings for CiviCRM APIv3
+- `RestApiV4`_ - REST API bindings for CiviCRM APIv4
+- `ConsoleApiV3`_ - Using `cv` to access CiviCRM APIv3
+- `ConsoleApiV4`_ - Using `cv` to access CiviCRM APIv4
+
+.. _RestApiV3: https://thomst.github.io/civicrmapi/#civicrmapi.rest.RestApiV3
+.. _RestApiV4: https://thomst.github.io/civicrmapi/#civicrmapi.rest.RestApiV4
+.. _ConsoleApiV3: https://thomst.github.io/civicrmapi/#civicrmapi.console.ConsoleApiV3
+.. _ConsoleApiV4: https://thomst.github.io/civicrmapi/#civicrmapi.console.ConsoleApiV4
+
 
 All you need to do is to initialize the api of your choice and use it::
 
