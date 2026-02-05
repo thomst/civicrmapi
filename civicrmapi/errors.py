@@ -44,6 +44,9 @@ class InvalidResponse(Exception):
     data. For example a subprocess call which succeeds but do not return valid
     json data. This may happen if the command does not reach the api at all, but
     do not exit with a proper return code.
+
+    :params value: Either requests or subprocess response or a data dict
+    :type value: dict or requests.Response or subprocess.CompletedProcess
     """
     def __init__(self, value):
         super().__init__(repr(value))

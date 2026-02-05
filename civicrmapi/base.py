@@ -156,7 +156,8 @@ class BaseApi:
         Takes a response object (either a requests response instance or a
         subprocess completed process instance) and try to parse it as json data.
 
-        :param requests or subprocess response: response instance
+        :param response: response instance
+        :type response: requests.Response or subprocess.CompletedProcess
         :return dict: api response data
 
         :raises InvalidResponse: when the response value is no valid json
