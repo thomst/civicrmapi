@@ -119,16 +119,14 @@ class ApiTestCase(unittest.TestCase):
     def test_compare_api_results(self):
         # Simple api v3 call.
         rest_result = self.apis['v3']['rest'].Contact.get()
-        self.assertIsInstance(rest_result, list)
         console_result = self.apis['v3']['cv'].Contact.get()
-        self.assertIsInstance(console_result, list)
+        self.assertIsInstance(rest_result, list)
         self.assertEqual(rest_result, console_result)
 
         # Simple api v4 call.
         rest_result = self.apis['v4']['rest'].Contact.get()
-        self.assertIsInstance(rest_result, list)
         console_result = self.apis['v4']['cv'].Contact.get()
-        self.assertIsInstance(console_result, list)
+        self.assertIsInstance(rest_result, list)
         self.assertEqual(rest_result, console_result)
 
         # Use a more complex api v4 call.
@@ -138,17 +136,15 @@ class ApiTestCase(unittest.TestCase):
             limit=1
             )
         rest_result = self.apis['v4']['rest'].Contact.get(params)
-        self.assertIsInstance(rest_result, list)
         console_result = self.apis['v4']['cv'].Contact.get(params)
-        self.assertIsInstance(console_result, list)
+        self.assertIsInstance(rest_result, list)
         self.assertEqual(rest_result, console_result)
 
         # Use a more complex api v3 call.
         params = {'return': 'id,contact_type', 'contact_type': 'Organization'}
         rest_result = self.apis['v3']['rest'].Contact.get(params)
-        self.assertIsInstance(rest_result, list)
         console_result = self.apis['v3']['cv'].Contact.get(params)
-        self.assertIsInstance(console_result, list)
+        self.assertIsInstance(rest_result, list)
         self.assertEqual(rest_result, console_result)
 
     @unittest.skipIf(not SETUP, 'No test installation setup found.')
@@ -165,17 +161,63 @@ class ApiTestCase(unittest.TestCase):
 
     @unittest.skipIf(not SETUP, 'No test installation setup found.')
     def test_invalid_field(self):
+        # Api v3 and v4 are not consistent in raising errors with invalid field
+        # parameters. V3 raises "missing mandatory field" for create, but gives
+        # a result list for get. V4 raises "invalid field" error for get, but
+        # creates whatever for create.
         params = {'foo': 'bar'}
-        for api in self.apis['all']:
+        for api in self.apis['v3'].values():
             with self.assertRaises(InvalidApiCall):
                 api.Contact.create(params)
+        for api in self.apis['v4'].values():
+            with self.assertRaises(InvalidApiCall):
+                api.Contact.get(params)
 
     @unittest.skipIf(not SETUP, 'No test installation setup found.')
     def test_invalid_value(self):
+        # Api v4 actually creates an email without contact_id for those params.
+        # Ups.
         params = {'contact_id': 'not-a-number', 'email': 'not-an-email-address'}
-        for api in self.apis['all']:
+        for api in self.apis['v3'].values():
             with self.assertRaises(InvalidApiCall):
                 api.Email.create(params)
+
+    @unittest.skipIf(not SETUP, 'No test installation setup found.')
+    def test_api_v4_parameter_preperation(self):
+        # Get action with no where key.
+        params = {'contact_type': 'Organization'}
+        rest_result = self.apis['v4']['rest'].Contact.get(params)
+        console_result = self.apis['v4']['cv'].Contact.get(params)
+        self.assertIsInstance(rest_result, list)
+        self.assertEqual(rest_result, console_result)
+        self.assertEqual(rest_result[0]['contact_type'], 'Organization')
+
+        # Create action with no values key.
+        params = {'contact_type': 'Organization', 'organization_name': 'Super Org'}
+        rest_result = self.apis['v4']['rest'].Contact.create(params)
+        console_result = self.apis['v4']['cv'].Contact.create(params)
+        self.assertIsInstance(rest_result, list)
+        self.assertIsInstance(console_result, list)
+        self.assertEqual(rest_result[0]['organization_name'], 'Super Org')
+
+        # Update action with no where key but an id key.
+        contact_id = rest_result[0]['id']
+        params = {'id': contact_id, 'organization_name': 'Mega Org'}
+        rest_result = self.apis['v4']['rest'].Contact.update(params)
+        params = {'id': contact_id, 'organization_name': 'Ultra Org'}
+        console_result = self.apis['v4']['cv'].Contact.update(params)
+        self.assertIsInstance(rest_result, list)
+        self.assertIsInstance(console_result, list)
+        self.assertEqual(console_result[0]['organization_name'], 'Ultra Org')
+
+        # Delete with no where key.
+        params = {'contact_type': 'Organization', 'organization_name': 'Super Org'}
+        rest_result = self.apis['v4']['rest'].Contact.delete(params)
+        params = {'contact_type': 'Organization', 'organization_name': 'Ultra Org'}
+        console_result = self.apis['v4']['cv'].Contact.delete(params)
+        self.assertIsInstance(rest_result, list)
+        self.assertIsInstance(console_result, list)
+
 
 
 if __name__ == "__main__":
