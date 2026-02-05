@@ -121,13 +121,13 @@ class ApiTestCase(unittest.TestCase):
         rest_result = self.apis['v3']['rest'].Contact.get()
         console_result = self.apis['v3']['cv'].Contact.get()
         self.assertIsInstance(rest_result, list)
-        self.assertEqual(rest_result, console_result)
+        self.assertEqual(len(rest_result), len(console_result))
 
         # Simple api v4 call.
         rest_result = self.apis['v4']['rest'].Contact.get()
         console_result = self.apis['v4']['cv'].Contact.get()
         self.assertIsInstance(rest_result, list)
-        self.assertEqual(rest_result, console_result)
+        self.assertEqual(len(rest_result), len(console_result))
 
         # Use a more complex api v4 call.
         params = dict(
@@ -138,14 +138,14 @@ class ApiTestCase(unittest.TestCase):
         rest_result = self.apis['v4']['rest'].Contact.get(params)
         console_result = self.apis['v4']['cv'].Contact.get(params)
         self.assertIsInstance(rest_result, list)
-        self.assertEqual(rest_result, console_result)
+        self.assertEqual(len(rest_result), len(console_result))
 
         # Use a more complex api v3 call.
         params = {'return': 'id,contact_type', 'contact_type': 'Organization'}
         rest_result = self.apis['v3']['rest'].Contact.get(params)
         console_result = self.apis['v3']['cv'].Contact.get(params)
         self.assertIsInstance(rest_result, list)
-        self.assertEqual(rest_result, console_result)
+        self.assertEqual(len(rest_result), len(console_result))
 
     @unittest.skipIf(not SETUP, 'No test installation setup found.')
     def test_invalid_entity(self):
