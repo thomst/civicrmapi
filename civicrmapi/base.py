@@ -161,7 +161,7 @@ class BaseApi:
         .. _docs: https://docs.civicrm.org/dev/
 
         Simple api calls using only entity field parameters to fetch or create
-        objects can be passed in as their are. This method will ensure that
+        objects can be passed in as they are. This method will ensure that
         those parameters are prepared for the API v4 adding them to a `values`
         or `where` key.
 
