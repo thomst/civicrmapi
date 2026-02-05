@@ -1,5 +1,7 @@
 import logging
 import json
+from . import v4
+from .utils import dict_to_where_clause_list
 from .errors import InvalidApiCall
 from .errors import InvalidResponse
 
@@ -135,10 +137,46 @@ class BaseApi:
         :return dict: normalized api call result
         """
         logger.info(f'Perform api call: {entity}.{action} with {params}')
+        params = self._prepare_api_v4_parameters(action, params)
         response = self._perform_api_call(entity, action, params or dict())
         data = self._get_data_from_response(response)
         data = self._check_api_response(data)
         return self._normalize_result_values(data)
+
+    def _prepare_api_v4_parameters(self, action, params):
+        """
+        The `API v3`_ and `API v4`_ have different formats for their api
+        parameters. While the API v3 uses a flat dictonary with entity field
+        parameters as well as meta informations like `limit` on the same level,
+        the API v4 has a more structured and "sql-like" way to format the
+        parameters - using keywords like `values`, `where` and `join`.
+
+        .. _API v3: https://docs.civicrm.org/dev/en/latest/api/v3/usage/
+        .. _API v4: https://docs.civicrm.org/dev/en/latest/api/v4/usage/
+
+        For complex api calls you will need to lookup the api version's specific
+        way on how to build your parameters dict. (Use the api explorer of a
+        civicrm installation or just read the `docs`_.)
+
+        .. _docs: https://docs.civicrm.org/dev/
+
+        Simple api calls using only entity field parameters to fetch or create
+        objects can be passed in as their are. This method will ensure that
+        those parameters are prepared for the API v4 adding them to a `values`
+        or `where` key.
+
+        :param dict params: api parameters
+        :return dict: prepared api parameters
+        """
+        if params and self.VERSION is v4:
+            if action in ['get', 'delete'] and not 'where' in params:
+                params = dict(where=dict_to_where_clause_list(params))
+            elif action == 'create' and not 'values' in params:
+                params = dict(values=params)
+            elif action == 'update' and not 'where' in params and 'id' in params:
+                id = params.pop('id')
+                params = dict(where=dict_to_where_clause_list(dict(id=id)), values=params)
+        return params
 
     def _perform_api_call(self, entity, action, params):
         """
