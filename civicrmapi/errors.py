@@ -18,7 +18,10 @@ class. (We try hard to distinguish them from not api related ones... which is
 not always easy.)
 """
 
+import requests
 import subprocess
+from .utils import format_requests_response
+from .utils import format_subprocess_response
 
 
 class InvalidApiCall(Exception):
@@ -49,4 +52,11 @@ class InvalidResponse(Exception):
     :type value: dict or requests.Response or subprocess.CompletedProcess
     """
     def __init__(self, value):
-        super().__init__(repr(value))
+        msg = 'Invalid result data:\n'
+        if isinstance(value, dict):
+            msg += str(value)
+        elif isinstance(value, requests.Response):
+            msg += format_requests_response(value)
+        elif isinstance(value, subprocess.CompletedProcess):
+            msg += format_subprocess_response(value)
+        super().__init__(msg)
