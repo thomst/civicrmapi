@@ -29,7 +29,6 @@ Base API classes
    :members:
 
 .. automethod:: civicrmapi.base.BaseApi.__call__
-.. automethod:: civicrmapi.base.BaseApi._prepare_api_v4_parameters
 
 .. autoclass:: civicrmapi.base.BaseEntity
    :members:
