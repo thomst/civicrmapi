@@ -9,18 +9,17 @@ Current version: |version|
 Welcome to civicrmapi's documentation!
 ======================================
 
-.. automodule:: civicrmapi
-
-
-
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
+.. automodule:: civicrmapi
+
+|
 
 
-Api reference
-=============
+Reference
+=========
 
 Base API classes
 ----------------
