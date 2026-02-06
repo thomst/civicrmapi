@@ -52,7 +52,7 @@ The following ways of performing an api call are equivalent::
     from civicrmapi import RestApiV4
 
     api = RestApiV4(url='https://example.org/civicrm', api_key='your_api_key')
-    params = {'sequential': 1}
+    params = {"contact_type": "Organization"}
 
     # Calling the action instance.
     result = api.Contact.get(params)
