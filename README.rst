@@ -17,14 +17,13 @@ Welcome to civicrmapi
 
 Description
 ===========
-Clean and simple bindings to `CiviCRM`_'s `API`_. Both `APIv3`_ and `APIv4`_ are
+Clean and simple bindings to `CiviCRM's API`_. Both `API v3`_ and `API v4`_ are
 supported. CiviCRM's API can be accessed either via REST or the command line
 tool `cv`_.
 
-.. _CiviCRM: https://docs.civicrm.org/
-.. _API: https://docs.civicrm.org/dev/en/latest/api/
-.. _APIv3: https://docs.civicrm.org/dev/en/latest/api/v3/usage/
-.. _APIv4: https://docs.civicrm.org/dev/en/latest/api/v4/usage/
+.. _CiviCRM's API: https://docs.civicrm.org/dev/en/latest/api/
+.. _API v3: https://docs.civicrm.org/dev/en/latest/api/v3/usage/
+.. _API v4: https://docs.civicrm.org/dev/en/latest/api/v4/usage/
 .. _cv: https://github.com/civicrm/cv
 
 
