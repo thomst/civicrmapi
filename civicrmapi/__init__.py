@@ -2,12 +2,11 @@
 ----------
 civicrmapi
 ----------
-This package provides a convenient way to access `CiviCRM`_'s API from Python
-applications. It supports both `API`_ verions `v3`_ and `v4`_ as REST API and
-via the console command `cv`_.
+This package provides a convenient way to access `CiviCRM's API`_ from Python
+applications. It supports both API verions `v3`_ and `v4`_ as REST API and via
+the console command `cv`_.
 
-.. _CiviCRM: https://docs.civicrm.org/
-.. _API: https://docs.civicrm.org/dev/en/latest/api/
+.. _CiviCRM's API: https://docs.civicrm.org/dev/en/latest/api/
 .. _v3: https://docs.civicrm.org/dev/en/latest/api/v3/usage/
 .. _v4: https://docs.civicrm.org/dev/en/latest/api/v4/usage/
 .. _cv: https://github.com/civicrm/cv
@@ -70,26 +69,26 @@ special behavior like custom validation, result parsing or error handling by
 writing your own api, entity or action subclasses.
 
 
-Parameters
-----------
+API Parameters
+--------------
 The `API v3`_ and `API v4`_ have different formats for api parameters. While the
 API v3 uses a flat dictonary with entity field parameters as well as meta
 informations like `limit` on the same level, the API v4 has a more structured
-and "sql-like" way to format the parameters - using keywords like `values`,
-`where` and `join`.
+and "sql-like" way to format the parameters - using keywords like `select`,
+`values`, `where` and `join`.
 
 .. _API v3: https://docs.civicrm.org/dev/en/latest/api/v3/usage/
 .. _API v4: https://docs.civicrm.org/dev/en/latest/api/v4/usage/
 
-You can always use the version's specific way of structuring the parameters of
+You can always use the version's specific way of structuring the parameters for
 your api call. Just use the `api explorer`_ or read the `api documentation`_ to
 check out what's possible and how to achieve it.
 
-.. _`api explorer`: https://docs.civicrm.org/dev/en/latest/api/#api-explorer
-.. _`api documentation`: https://docs.civicrm.org/dev/en/latest/api/
+.. _api explorer: https://docs.civicrm.org/dev/en/latest/api/#api-explorer
+.. _api documentation: https://docs.civicrm.org/dev/en/latest/api/
 
-For api calls using only entity field parameters to get, create, delete or
-update objects civicrmapi helps you with building the v4 parameters out of a
+For simple api calls using only entity field parameters to get, create, delete
+or update objects, civicrmapi helps you building the v4 parameters out of a
 plain field-value dictonary.
 
 Let's say you want to get (or delete) all Individuals with german as their
@@ -102,12 +101,14 @@ preferred language. The original v4 parameters would be::
         ]
     }
 
+
 Those parameters can also be simply written as::
 
     params = {
         'contact_type': 'Individual',
         'preferred_language: 'de_DE',
     }
+
 
 The same works for a create api call::
 
@@ -124,6 +125,7 @@ The same works for a create api call::
         'contact_type': 'Organization',
         'organization_name: 'Super Org',
     }
+
 
 And even for an update api call if you use the id field to select your entity::
 
@@ -156,6 +158,7 @@ skip them and returns for all APIs a plain list of results. So you always get
 something like::
 
     [{'id': 1, ...}, {'id': 2, ...}, ...]
+
 
 """
 
