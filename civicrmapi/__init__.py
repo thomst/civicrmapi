@@ -34,8 +34,8 @@ All you need to do is to initialize the api of your choice and use it::
     result = api.Contact.create(params)
 
 
-Concepts
---------
+Concept
+-------
 There are three main base classes an api binding is built of:
 
 - :class:`~base.BaseApi` - Base class for all API implementations
@@ -68,6 +68,95 @@ The standard entities and actions for each api version are defined within the
 the corresponding modules :mod:`~.v3` and :mod:`~.v4`. You can also implement
 special behavior like custom validation, result parsing or error handling by
 writing your own api, entity or action subclasses.
+
+
+Parameters
+----------
+The `API v3`_ and `API v4`_ have different formats for api parameters. While the
+API v3 uses a flat dictonary with entity field parameters as well as meta
+informations like `limit` on the same level, the API v4 has a more structured
+and "sql-like" way to format the parameters - using keywords like `values`,
+`where` and `join`.
+
+.. _API v3: https://docs.civicrm.org/dev/en/latest/api/v3/usage/
+.. _API v4: https://docs.civicrm.org/dev/en/latest/api/v4/usage/
+
+You can always use the version's specific way of structuring the parameters of
+your api call. Just use the `api explorer`_ or read the `api documentation`_ to
+check out what's possible and how to achieve it.
+
+.. _`api explorer`: https://docs.civicrm.org/dev/en/latest/api/#api-explorer
+.. _`api documentation`: https://docs.civicrm.org/dev/en/latest/api/
+
+For api calls using only entity field parameters to get, create, delete or
+update objects civicrmapi helps you with building the v4 parameters out of a
+plain field-value dictonary.
+
+Let's say you want to get (or delete) all Individuals with german as their
+preferred language. The original v4 parameters would be::
+
+    params = {
+        'where': [
+            ['contact_type', '=', 'Individual'],
+            ['preferred_language', '=', 'de_DE'],
+        ]
+    }
+
+Those parameters can also be simply written as::
+
+    params = {
+        'contact_type': 'Individual',
+        'preferred_language: 'de_DE',
+    }
+
+The same works for a create api call::
+
+    # Original v4 parameters:
+    params = {
+        'values': {
+            'contact_type': 'Organization',
+            'organization_name': 'Super Org',
+        }
+    }
+
+    # Could be also passed in as:
+    params = {
+        'contact_type': 'Organization',
+        'organization_name: 'Super Org',
+    }
+
+And even for an update api call if you use the id field to select your entity::
+
+    # Original v4 parameters:
+    params = {
+        'where': [
+            ['id', '=', 123],
+        ],
+        'values': {
+            'organization_name': 'Mega Org',
+        }
+    }
+
+    # Could be also passed in as:
+    params = {
+        'id': 123,
+        'organization_name: 'Mega Org',
+    }
+
+
+Results
+-------
+The REST-API-v3 and v4 as well as the CV-API-v3 returns a dictonary with some
+meta data and a values key which holds the result data. Only the CV-API-v4
+returns the results as list.
+
+Since the meta data of the result dictonaries are reduntant (such as api
+version, action being used, count of the results and other stuff) civicrmapi
+skip them and returns for all APIs a plain list of results. So you always get
+something like::
+
+    [{'id': 1, ...}, {'id': 2, ...}, ...]
+
 """
 
 from .base import BaseAction
