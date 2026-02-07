@@ -11,100 +11,103 @@ logger = logging.getLogger('civicrmapi')
 
 class BaseAction:
     """
-    Base class for CiviCRM API actions. Subclasses must define the
-    :attr:`~BaseAction.ENTITY` and :attr:`~BaseAction.ACTION` attributes.
+    Base class for CiviCRM API actions. Instances are callables performing api
+    calls on the entity instance the class was initialized with.
 
-    By calling an instance of this class the specific api call will be
-    performed. See :meth:`~BaseAction.__call__`.
+    :param entity: entity instance
+    :type entity: :class:`~.BaseEntity`
 
-    :param api: CiviCRM API instance
-    :type api: :class:`~civicrmapi.base.BaseApi`
-    :raises NotImplemented: when :attr:`~BaseAction.ENTITY` is not defined
-    :raises NotImplemented: when :attr:`~BaseAction.ACTION` is not defined
+    :raises NotImplemented: when :attr:`~BaseAction.NAME` is not defined
     """
-    ENTITY = None
+    NAME = None
     """
-    The CiviCRM entity this action operates on. Set by a subclass of
-    :class:`~.BaseAction`.
-    """
-    ACTION = None
-    """
-    The action name. Set by a subclass of :class:`~.BaseAction`.
+    Must be set by a subclass.
     """
 
-    def __init__(self, api):
-        self._api = api
+    def __init__(self, entity):
+        if not self.NAME:
+            raise NotImplemented('NAME attribute must be set.')
 
-        # Raise NotImplemented if ENTITY or ACTIONis not defined.
-        if not self.ENTITY or not self.ACTION:
-            raise NotImplemented('ENTITY and ACTION must be defined.')
+        self._entity = entity
 
     def __call__(self, params=None):
         """
-        Perform the api call.
+        Perform an api call with this action using its entity.
 
         :param dict params: api call parameters (optional)
         :return dict: api call result
         """
-        return self._api(self.ENTITY, self.ACTION, params or dict())
+        return self._entity(self.NAME, params or dict())
 
 
 class BaseEntity:
     """
-    Base class for CiviCRM entities. Subclasses must define the
-    :attr:`~BaseEntity.ENTITY` attribute.
+    Base class for CiviCRM entities. Instances are callables performing api
+    calls with the api instance the class was initialized with.
 
-    This class will be initialized with all default actions defined for the
-    specific api version as attributes.
-
-    By calling an instance of this class the specific api call will be
-    performed. See :meth:`~BaseEntity.__call__`.
+    The api version's default actions are added automatically on initialization.
+     (See :attr:`civicrmapi.v3.ACTIONS` and :attr:`civicrmapi.v4.ACTIONS`.)
 
     :param api: CiviCRM API instance
-    :type api: :class:`~civicrmapi.base.BaseApi`
-    :raises NotImplemented: when :attr:`~BaseEntity.ENTITY` is not defined
+    :type api: :class:`~.BaseApi`
+
+    :raises NotImplemented: when :attr:`~BaseEntity.NAME` is not defined
     """
 
-    ENTITY = None
+    NAME = None
     """
-    The entity name. Set by a subclass of :class:`~.BaseEntity`.
+    Must be set by a subclass.
     """
 
     def __init__(self, api):
+        if not self.NAME:
+            raise NotImplemented('NAME attribute must be set.')
+
         self._api = api
+        self.add_default_actions()
 
-        # Raise NotImplemented if ENTITY is not defined.
-        if not self.ENTITY:
-            raise NotImplemented('ENTITY must be defined.')
+    def add_action(self, action):
+        """
+        Add an action to this entity. The action parameter could either be a
+        string or an Action class. If it's a string the :class:`~.BaseAction`
+        class will be used using the string as its :attr:`~.BaseAction.NAME`
+        parameter. The action will be become a callable attribute of the entity
+        instance.
 
-        # Add default actions defined in the api version module.
-        for action_name in self._api.VERSION.ACTIONS:
-            attrs = dict(ENTITY=self.ENTITY, ACTION=action_name)
-            action_class = type(action_name, (BaseAction,), attrs)
-            setattr(self, action_name, action_class(self._api))
+        :param action: action to perform for this entity
+        :type action: str or :class:`~.BaseAction`
+        """
+        if isinstance(action, str):
+            action = type(action, (BaseAction,), dict(NAME=action))
+        setattr(self, action.NAME, action(self))
+
+    def add_default_actions(self):
+        """
+        Add all actions defined in the version module of the api this entity was
+        initialized with. Either :attr:`civicrmapi.v3.ACTIONS` or
+        :attr:`civicrmapi.v4.ACTIONS`.
+        """
+        for action in self._api.VERSION.ACTIONS:
+            self.add_action(action)
 
     def __call__(self, action, params=None):
         """
-        Perform an api call on this entity.
+        Perform an api call on this entity using its api.
 
         :param str action: api call action
         :param dict params: api call parameters (optional)
         :return dict: api call result
         """
-        return self._api(self.ENTITY, action, params or dict())
+        return self._api(self.NAME, action, params or dict())
 
 
 class BaseApi:
     """
-    Base CiviCRM API class. Subclasses must define the :attr:`~BaseApi.VERSION`
-    attribute and overwrite the :meth:`~BaseApi._perform_api_call` method.
+    Base CiviCRM API class. Instances are callables performing api calls.
 
     This class will be initialized with the standard entities for the specific
-    api version as instance attributes. (See :mod:`~civicrmapi.v3` and
-    :mod:`~civicrmapi.v4`.)
-
-    By calling an instance of this class the specific api call will be
-    performed. See :meth:`~BaseApi.__call__`.
+    api version as instance attributes. (See :attr:`civicrmapi.v3.ENTITIES` and
+    :attr:`civicrmapi.v4.ENTITIES`.)
 
     :raises NotImplemented: when :attr:`~BaseApi.VERSION` is not defined
     :raises NotImplemented: when :meth:`._perform_api_call` is not implemented
@@ -123,9 +126,31 @@ class BaseApi:
             raise NotImplemented('VERSION must be defined.')
 
         # Add default entities defined in the api version module.
+        self.add_default_entities()
+
+    def add_entity(self, entity):
+        """
+        Add an entity to this api. The entity parameter could either be a
+        string or an Entity class. If it's a string the :class:`~.BaseEntity`
+        class will be used using the string as its :attr:`~.BaseEntity.NAME`
+        parameter. The entity will be become a callable attribute of the api
+        instance.
+
+        :param entity: entity to work with
+        :type entity: str or :class:`~.BaseEntity`
+        """
+        if isinstance(entity, str):
+            entity = type(entity, (BaseEntity,), dict(NAME=entity))
+        setattr(self, entity.NAME, entity(self))
+
+    def add_default_entities(self):
+        """
+        Add all entities defined in the version module of the api this entity was
+        initialized with. Either :attr:`civicrmapi.v3.ENTITIES` or
+        :attr:`civicrmapi.v4.ENTITIES`.
+        """
         for entity in self.VERSION.ENTITIES:
-            entity_class = type(entity, (BaseEntity,), dict(ENTITY=entity))
-            setattr(self, entity, entity_class(self))
+            self.add_entity(entity)
 
     def __call__(self, entity, action, params=None):
         """
