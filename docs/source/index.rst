@@ -25,19 +25,13 @@ Base API classes
 ----------------
 
 .. autoclass:: civicrmapi.base.BaseApi
-   :members:
-
-.. automethod:: civicrmapi.base.BaseApi.__call__
+   :members: VERSION, add_entity, __call__
 
 .. autoclass:: civicrmapi.base.BaseEntity
-   :members:
-
-.. automethod:: civicrmapi.base.BaseEntity.__call__
+   :members: NAME, add_action, __call__
 
 .. autoclass:: civicrmapi.base.BaseAction
-   :members:
-
-.. automethod:: civicrmapi.base.BaseAction.__call__
+   :members: NAME, __call__
 
 
 REST API for v3 and v4
