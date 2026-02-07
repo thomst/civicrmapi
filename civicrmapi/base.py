@@ -64,7 +64,7 @@ class BaseEntity:
             raise NotImplemented('NAME attribute must be set.')
 
         self._api = api
-        self.add_default_actions()
+        self._add_default_actions()
 
     def add_action(self, action):
         """
@@ -81,7 +81,7 @@ class BaseEntity:
             action = type(action, (BaseAction,), dict(NAME=action))
         setattr(self, action.NAME, action(self))
 
-    def add_default_actions(self):
+    def _add_default_actions(self):
         """
         Add all actions defined in the version module of the api this entity was
         initialized with. Either :attr:`civicrmapi.v3.ACTIONS` or
@@ -126,7 +126,7 @@ class BaseApi:
             raise NotImplemented('VERSION must be defined.')
 
         # Add default entities defined in the api version module.
-        self.add_default_entities()
+        self._add_default_entities()
 
     def add_entity(self, entity):
         """
@@ -143,7 +143,7 @@ class BaseApi:
             entity = type(entity, (BaseEntity,), dict(NAME=entity))
         setattr(self, entity.NAME, entity(self))
 
-    def add_default_entities(self):
+    def _add_default_entities(self):
         """
         Add all entities defined in the version module of the api this entity was
         initialized with. Either :attr:`civicrmapi.v3.ENTITIES` or
