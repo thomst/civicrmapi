@@ -183,6 +183,64 @@ something like::
     [{'id': 1, ...}, {'id': 2, ...}, ...]
 
 
+Build your own API class
+------------------------
+civicrmapi is not only ment as ready-to-use API bindings but also as a build kit
+for complex api tasks. New functionality can be implemented on api, entity and
+action level. As an example let's build an get-or-create action for the Contact
+entity::
+
+    >>> class Contact(BaseEntity):
+    ...     NAME = 'Contact'
+    ...     def get_or_create(self, params):
+    ...         result = self.get(params)
+    ...         if not result:
+    ...             result = self.create(params)
+    ...         return result
+
+    >>> api = ConsoleApiV4(cv=cv, context=context)
+    >>> params = {
+    ...     'contact_type': 'Organization',
+    ...     'organization_name': 'Super Org',
+    ... }
+
+    >>> contact_entity = Contact(api)
+    >>> contact = contact_entity.get_or_create(params)
+    >>> same_contact = contact_entity.get_or_create(params)
+    >>> contact[0]['id'] == same_contact[0]['id']
+    True
+
+What if we want a get-or-create action for all entities of an api instance?
+Let's try another approach using a mixin for our entities::
+
+    >>> class MyMixin:
+    ...     def get_or_create(self, params):
+    ...         result = self.get(params)
+    ...         if not result:
+    ...             result = self.create(params)
+    ...         return result
+
+    >>> class MyApi(ConsoleApiV4):
+    ...     def _add_entities(self):
+    ...         for entity in self.VERSION.ENTITIES:
+    ...             entity = type(entity, (MyMixin, BaseEntity), dict(NAME=entity))
+    ...             setattr(self, entity.NAME, entity(self))
+
+    >>> api = MyApi(cv=cv, context=context)
+    >>> params = {
+    ...     'contact_id': 2,
+    ...     'email': 'foo@bar.de',
+    ... }
+
+    >>> email = api.Email.get_or_create(params)
+    >>> same_email = api.Email.get_or_create(params)
+    >>> email[0]['id'] == same_email[0]['id']
+    True
+
+There are surely other options like writing a custom api action and using them
+with different entities or writing custom code on an api level to collect
+statistics on api usage ect. Use what ever approach fits to your needs.
+
 """
 
 from .base import BaseAction

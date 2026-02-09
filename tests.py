@@ -11,6 +11,7 @@ from pathlib import Path
 from civicrmapi import __version__
 from civicrmapi.errors import InvalidApiCall
 from civicrmapi.errors import InvalidResponse
+from civicrmapi.base import BaseEntity
 from civicrmapi.rest import RestApiV3
 from civicrmapi.rest import RestApiV4
 from civicrmapi.console import ConsoleApiV3
@@ -222,6 +223,7 @@ class ApiTestCase(unittest.TestCase):
 
     def test_docstrings(self):
         globs = dict(
+            BaseEntity=BaseEntity,
             ConsoleApiV3=ConsoleApiV3,
             ConsoleApiV4=ConsoleApiV4,
             RestApiV3=RestApiV3,
