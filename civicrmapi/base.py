@@ -133,9 +133,7 @@ class BaseApi:
     :mod:`~civicrmapi.v4` in your subclass.
     """
 
-    # FIXME: Add standard entities in __new__(), while extra entities in __init__()?
     def __init__(self):
-        # Raise NotImplemented if VERSION is not defined.
         if not self.VERSION:
             raise NotImplemented('VERSION must be defined.')
 
