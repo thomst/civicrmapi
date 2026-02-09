@@ -97,9 +97,7 @@ class BaseEntity:
 
     def _add_actions(self):
         """
-        Add all actions defined in the version module of the api this entity was
-        initialized with. Either :attr:`civicrmapi.v3.ACTIONS` or
-        :attr:`civicrmapi.v4.ACTIONS`.
+        Add all default actions from the API version module to this entity.
         """
         for action in self._api.VERSION.ACTIONS:
             self.add_action(action)
@@ -157,9 +155,7 @@ class BaseApi:
 
     def _add_entities(self):
         """
-        Add all entities defined in the version module of the api this entity was
-        initialized with. Either :attr:`civicrmapi.v3.ENTITIES` or
-        :attr:`civicrmapi.v4.ENTITIES`.
+        Add all default entities from the API version module to this api.
         """
         for entity in self.VERSION.ENTITIES:
             self.add_entity(entity)
