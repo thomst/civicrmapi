@@ -25,10 +25,10 @@ Base API classes
 ----------------
 
 .. autoclass:: civicrmapi.base.BaseApi
-   :members: VERSION, add_entity, __call__
+   :members: VERSION, __call__
 
 .. autoclass:: civicrmapi.base.BaseEntity
-   :members: NAME, add_action, __call__
+   :members: NAME, __call__
 
 .. autoclass:: civicrmapi.base.BaseAction
    :members: NAME, __call__
