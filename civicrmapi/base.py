@@ -30,13 +30,6 @@ class BaseAction:
 
         self._entity = entity
 
-    @property
-    def entity(self):
-        """
-        Entity object to work on.
-        """
-        return self._entity
-
     def __call__(self, params=None):
         """
         Perform an api call with this action using its entity.
@@ -73,34 +66,13 @@ class BaseEntity:
         self._api = api
         self._add_actions()
 
-    @property
-    def api(self):
-        """
-        Api object to work with.
-        """
-        return self._api
-
-    def add_action(self, action):
-        """
-        Add an action to this entity. The action parameter could either be a
-        string or an Action class. If it's a string the :class:`~.BaseAction`
-        class will be used using the string as its :attr:`~.BaseAction.NAME`
-        parameter. The action will be become a callable attribute of the entity
-        instance.
-
-        :param action: action to perform for this entity
-        :type action: str or :class:`~.BaseAction`
-        """
-        if isinstance(action, str):
-            action = type(action, (BaseAction,), dict(NAME=action))
-        setattr(self, action.NAME, action(self))
-
     def _add_actions(self):
         """
         Add all default actions from the API version module to this entity.
         """
         for action in self._api.VERSION.ACTIONS:
-            self.add_action(action)
+            action = type(action, (BaseAction,), dict(NAME=action))
+            setattr(self, action.NAME, action(self))
 
     def __call__(self, action, params=None):
         """
@@ -138,27 +110,13 @@ class BaseApi:
         # Add default entities defined in the api version module.
         self._add_entities()
 
-    def add_entity(self, entity):
-        """
-        Add an entity to this api. The entity parameter could either be a
-        string or an Entity class. If it's a string the :class:`~.BaseEntity`
-        class will be used using the string as its :attr:`~.BaseEntity.NAME`
-        parameter. The entity will be become a callable attribute of the api
-        instance.
-
-        :param entity: entity to work with
-        :type entity: str or :class:`~.BaseEntity`
-        """
-        if isinstance(entity, str):
-            entity = type(entity, (BaseEntity,), dict(NAME=entity))
-        setattr(self, entity.NAME, entity(self))
-
     def _add_entities(self):
         """
         Add all default entities from the API version module to this api.
         """
         for entity in self.VERSION.ENTITIES:
-            self.add_entity(entity)
+            entity = type(entity, (BaseEntity,), dict(NAME=entity))
+            setattr(self, entity.NAME, entity(self))
 
     def __call__(self, entity, action, params=None):
         """
