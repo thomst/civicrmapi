@@ -30,6 +30,13 @@ class BaseAction:
 
         self._entity = entity
 
+    @property
+    def entity(self):
+        """
+        Entity object to work on.
+        """
+        return self._entity
+
     def __call__(self, params=None):
         """
         Perform an api call with this action using its entity.
@@ -65,6 +72,13 @@ class BaseEntity:
 
         self._api = api
         self._add_default_actions()
+
+    @property
+    def api(self):
+        """
+        Api object to work with.
+        """
+        return self._api
 
     def add_action(self, action):
         """
