@@ -5,6 +5,8 @@ import logging
 import subprocess
 import requests
 import pprint
+import doctest
+import civicrmapi
 from pathlib import Path
 from civicrmapi import __version__
 from civicrmapi.errors import InvalidApiCall
@@ -217,6 +219,20 @@ class ApiTestCase(unittest.TestCase):
         console_result = self.apis['v4']['cv'].Contact.delete(params)
         self.assertIsInstance(rest_result, list)
         self.assertIsInstance(console_result, list)
+
+    def test_docstrings(self):
+        globs = dict(
+            ConsoleApiV3=ConsoleApiV3,
+            ConsoleApiV4=ConsoleApiV4,
+            RestApiV3=RestApiV3,
+            RestApiV4=RestApiV4,
+            url=SETUP['url'],
+            api_key=SETUP['api_key'],
+            cv=SETUP['cv'],
+            context=SETUP['context'],
+            )
+        result = doctest.testmod(civicrmapi, globs=globs)
+        self.assertFalse(result.failed)
 
 
 
