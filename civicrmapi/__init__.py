@@ -23,14 +23,14 @@ There are four ready to use api classes:
 
 All you need to do is to initialize the api of your choice and use it::
 
-    from civicrmapi import ConsoleApiV4
-
-    api = ConsoleApiV4(cv='/path/to/cv', cwd='/path/to/civicrm/root')
-    params = {
-        "contact_type": "Organization",
-        "organization_name": "pretty org",
-        }
-    result = api.Contact.create(params)
+    >>> api = ConsoleApiV4(cv=cv, context=context)
+    >>> params = {
+    ...     "contact_type": "Organization",
+    ...     "organization_name": "pretty org",
+    ...     }
+    >>> result = api.Contact.create(params)
+    >>> result[0]['organization_name']
+    'pretty org'
 
 
 Concept
@@ -48,19 +48,20 @@ their actions are all callable.
 
 The following ways of performing an api call are equivalent::
 
-    from civicrmapi import RestApiV4
+    >>> api = RestApiV4(url=url, api_key=api_key)
+    >>> params = {"contact_type": "Organization"}
 
-    api = RestApiV4(url='https://example.org/civicrm', api_key='your_api_key')
-    params = {"contact_type": "Organization"}
+    >>> # Calling the action instance.
+    >>> result_one = api.Contact.get(params)
 
-    # Calling the action instance.
-    result = api.Contact.get(params)
+    >>> # Calling the entity instance passing the action as parameter.
+    >>> result_two = api.Contact('get', params)
 
-    # Calling the entity instance passing the action as parameter.
-    result = api.Contact('get', params)
+    >>> # Calling the api instance  passing the entity and action as parameters.
+    >>> result_three = api('Contact', 'get', params)
 
-    # Calling the api instance  passing the entity and action as parameters.
-    result = api('Contact', 'get', params)
+    >>> result_one == result_two == result_three
+    True
 
 
 The standard entities and actions for each api version are defined within the
@@ -91,59 +92,81 @@ For simple api calls using only entity field parameters to get, create, delete
 or update objects, civicrmapi helps you building the v4 parameters out of a
 plain field-value dictonary.
 
-Let's say you want to get (or delete) all Individuals with german as their
-preferred language. The original v4 parameters would be::
+So those Contact.get api calls are equivalent::
 
-    params = {
-        'where': [
-            ['contact_type', '=', 'Individual'],
-            ['preferred_language', '=', 'de_DE'],
-        ]
-    }
+    >>> api = ConsoleApiV4(cv=cv, context=context)
 
+    >>> # Api call with original v4 parameter format.:
+    >>> params = {
+    ...     'where': [
+    ...         ['contact_type', '=', 'Individual'],
+    ...         ['preferred_language', '=', 'de_DE'],
+    ...     ]
+    ... }
+    >>> result_one = api.Contact.get(params)
 
-Those parameters can also be simply written as::
+    >>> # Api call using a simple field value dictonary:
+    >>> params = {
+    ...     'contact_type': 'Individual',
+    ...     'preferred_language': 'de_DE',
+    ... }
+    >>> result_two = api.Contact.get(params)
 
-    params = {
-        'contact_type': 'Individual',
-        'preferred_language: 'de_DE',
-    }
+    >>> result_one == result_two
+    True
+
 
 
 The same works for a create api call::
 
-    # Original v4 parameters:
-    params = {
-        'values': {
-            'contact_type': 'Organization',
-            'organization_name': 'Super Org',
-        }
-    }
+    >>> api = ConsoleApiV4(cv=cv, context=context)
 
-    # Could be also passed in as:
-    params = {
-        'contact_type': 'Organization',
-        'organization_name: 'Super Org',
-    }
+    >>> # Original v4 parameters are:
+    >>> params = {
+    ...     'values': {
+    ...         'contact_type': 'Organization',
+    ...         'organization_name': 'Super Org',
+    ...     }
+    ... }
+    >>> result = api.Contact.create(params)
+    >>> result[0]['organization_name']
+    'Super Org'
+
+    >>> # Those could be also passed in as:
+    >>> params = {
+    ...     'contact_type': 'Organization',
+    ...     'organization_name': 'Another Super Org',
+    ... }
+    >>> result = api.Contact.create(params)
+    >>> result[0]['organization_name']
+    'Another Super Org'
 
 
 And even for an update api call if you use the id field to select your entity::
 
-    # Original v4 parameters:
-    params = {
-        'where': [
-            ['id', '=', 123],
-        ],
-        'values': {
-            'organization_name': 'Mega Org',
-        }
-    }
+    >>> api = ConsoleApiV4(cv=cv, context=context)
 
-    # Could be also passed in as:
-    params = {
-        'id': 123,
-        'organization_name: 'Mega Org',
-    }
+    >>> # Original v4 parameters are:
+    >>> params = {
+    ...     'where': [
+    ...         ['id', '=', 1],
+    ...     ],
+    ...     'values': {
+    ...         'organization_name': 'Super Org',
+    ...     }
+    ... }
+    >>> result = api.Contact.update(params)
+    >>> result[0]['organization_name']
+    'Super Org'
+
+    >>> # Those could be also passed in as:
+    >>> params = {
+    ...     'id': 1,
+    ...     'organization_name': 'Mega Org',
+    ... }
+    >>> result = api.Contact.update(params)
+    >>> result[0]['organization_name']
+    'Mega Org'
 
 
 Results
