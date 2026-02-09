@@ -37,7 +37,7 @@ class BaseAction:
         :param dict params: api call parameters (optional)
         :return dict: api call result
         """
-        return self._entity(self.NAME, params or dict())
+        return self._entity(self.NAME, params)
 
 
 class BaseEntity:
@@ -98,7 +98,7 @@ class BaseEntity:
         :param dict params: api call parameters (optional)
         :return dict: api call result
         """
-        return self._api(self.NAME, action, params or dict())
+        return self._api(self.NAME, action, params)
 
 
 class BaseApi:
@@ -161,6 +161,7 @@ class BaseApi:
         :param dict params: api call parameters (optional)
         :return dict: normalized api call result
         """
+        params = params or dict()
         logger.info(f'Perform api call: {entity}.{action} with {params}')
         params = self._prepare_api_v4_parameters(action, params)
         response = self._perform_api_call(entity, action, params or dict())
