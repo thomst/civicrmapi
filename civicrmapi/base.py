@@ -35,7 +35,7 @@ class BaseAction:
         Perform an api call with this action using its entity.
 
         :param dict params: api call parameters (optional)
-        :return dict: api call result
+        :return list: result data as list of dictonaries
         """
         return self._entity(self.NAME, params)
 
@@ -80,7 +80,7 @@ class BaseEntity:
 
         :param str action: api call action
         :param dict params: api call parameters (optional)
-        :return dict: api call result
+        :return list: result data as list of dictonaries
         """
         return self._api(self.NAME, action, params)
 
@@ -125,7 +125,7 @@ class BaseApi:
         :param str entity: CiviCRM-entitiy
         :param str action: api call action
         :param dict params: api call parameters (optional)
-        :return dict: normalized api call result
+        :return list: result data as list of dictonaries
         """
         params = params or dict()
         logger.info(f'Perform api call: {entity}.{action} with {params}')
