@@ -192,22 +192,31 @@ class ExceptionTestCase(ApiMixin, unittest.TestCase):
 
     def test_cv_with_echo_instead_cv(self):
         api = CvApiV4('echo')
-        with self.assertRaises(InvalidResponse):
+        with self.assertRaises(InvalidResponse) as cm:
             api.Contact.get()
+        exc = cm.exception
+        self.assertIsInstance(exc.response, subprocess.CompletedProcess)
+        self.assertTrue(str(exc))
 
     @unittest.skipIf(not SETUP, 'No test installation setup found.')
     def test_invalid_api_key(self):
         apiv3 = HttpApiV3(SETUP['url'], 'FAKE_API_KEY', 'FAKE_SITE_KEY')
         apiv4 = HttpApiV4(SETUP['url'], 'FAKE_API_KEY')
         for api in [apiv3, apiv4]:
-            with self.assertRaises(AccessDenied):
+            with self.assertRaises(AccessDenied) as cm:
                 api.Contact.get()
+            exc = cm.exception
+            self.assertIsInstance(exc.data, (str, dict))
+            self.assertTrue(str(exc))
 
     @unittest.skipIf(not SETUP, 'No test installation setup found.')
     def test_invalid_entity(self):
         for api in self.apis['all']:
-            with self.assertRaises(ApiError):
+            with self.assertRaises(ApiError) as cm:
                 api('Foobar', 'get')
+            exc = cm.exception
+            self.assertIsInstance(exc.data, (str, dict))
+            self.assertTrue(str(exc))
 
     @unittest.skipIf(not SETUP, 'No test installation setup found.')
     def test_invalid_action(self):
