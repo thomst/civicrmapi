@@ -180,7 +180,6 @@ class BaseApi:
         """
         raise NotImplemented
 
-    # FIXME: Explicitly check for access denied or permission related errors.
     def _check_api_response(self, data):
         """
         Process the json response from an api call.
@@ -192,8 +191,9 @@ class BaseApi:
         """
         # data might be a result list from cv API v4.
         if isinstance(data, dict):
-            # This is an HTTP API v3 access denied error.
-            if 'invalid credential' in data.get('error_message', str()).lower():
+            # These are HTTP API v3 access denied error.
+            error_msg = data.get('error_message', str()).lower()
+            if 'invalid credential' in error_msg or 'cannot login' in error_msg:
                 raise AccessDenied(data)
 
             # API v3 uses is_error = 1.
