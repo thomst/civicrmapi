@@ -53,7 +53,7 @@ class ApiError(ApiCallError):
 
 class AccessDenied(ApiError):
     """
-    Raised on access denied due to invalid credentials.
+    Raised by HTTP api on access denied due to invalid credentials.
     """
 
 
