@@ -5,7 +5,7 @@ This package provides a convenient way to access `CiviCRM's REST API`_ from
 python applications. It supports both API verions `v3`_ and `v4`_ via http
 requests and the `cv`_ command.
 
-.. _CiviCRM's API: https://docs.civicrm.org/dev/en/latest/api/
+.. _CiviCRM's REST API: https://docs.civicrm.org/dev/en/latest/api/
 .. _v3: https://docs.civicrm.org/dev/en/latest/api/v3/usage/
 .. _v4: https://docs.civicrm.org/dev/en/latest/api/v4/usage/
 .. _cv: https://github.com/civicrm/cv
