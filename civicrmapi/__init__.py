@@ -15,10 +15,10 @@ Getting Started
 ---------------
 There are four ready to use api classes:
 
-- :class:`~civicrmapi.http.HttpApiV3` - REST API bindings for CiviCRM APIv3
-- :class:`~civicrmapi.http.HttpApiV4` - REST API bindings for CiviCRM APIv4
-- :class:`~civicrmapi.cv.CvApiV3` - Using `cv` to access CiviCRM APIv3
-- :class:`~civicrmapi.cv.CvApiV4` - Using `cv` to access CiviCRM APIv4
+- :class:`~civicrmapi.http.HttpApiV3` - HTTP API bindings for CiviCRM's APIv3
+- :class:`~civicrmapi.http.HttpApiV4` - HTTP API bindings for CiviCRM's APIv4
+- :class:`~civicrmapi.cv.CvApiV3` - cv API bindings for CiviCRM's APIv3
+- :class:`~civicrmapi.cv.CvApiV4` - cv API bindings for CiviCRM's APIv4
 
 All you need to do is to initialize the api of your choice and use it::
 
