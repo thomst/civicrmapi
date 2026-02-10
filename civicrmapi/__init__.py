@@ -1,9 +1,9 @@
 """
 About
 -----
-This package provides a convenient way to access `CiviCRM's API`_ from Python
-applications. It supports both API verions `v3`_ and `v4`_ as REST API and via
-the console command `cv`_.
+This package provides a convenient way to access `CiviCRM's REST API`_ from
+python applications. It supports both API verions `v3`_ and `v4`_ via http
+requests and the `cv`_ command.
 
 .. _CiviCRM's API: https://docs.civicrm.org/dev/en/latest/api/
 .. _v3: https://docs.civicrm.org/dev/en/latest/api/v3/usage/
@@ -170,14 +170,13 @@ And even for an update api call if you use the id field to select your entity::
 
 Results
 -------
-The REST-API-v3 and v4 as well as the CV-API-v3 returns a dictonary with some
-meta data and a values key which holds the result data. Only the CV-API-v4
-returns the results as list.
+In most cases the CiviCRM's API returns a dictonary holding some meta data and a
+values key with the actual result data. But APIv4 calls done via the cv command
+returns the results as a plain list - skipping all the meta data.
 
-Since the meta data of the result dictonaries are reduntant (such as api
-version, action being used, count of the results and other stuff) civicrmapi
-skip them and returns for all APIs a plain list of results. So you always get
-something like::
+Since the result's meta data is irrelevant in the very most usage cases, and to
+be consistent throughout all api classes, civicrmapi *always* returns results as
+a plain list. So with all API classes you get something like::
 
     [{'id': 1, ...}, {'id': 2, ...}, ...]
 

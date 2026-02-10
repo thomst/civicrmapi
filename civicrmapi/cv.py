@@ -13,8 +13,9 @@ logger = logging.getLogger('civicrmapi')
 
 class BaseCvApi(BaseApi):
     """
-    Base class for CiviCRM Console API implementations. Subclasses must define the
-    :attr:`~base.BaseApi.VERSION` attribute and implement the :meth:`._get_command` method.
+    Base class for cv API implementations. Subclasses must define the
+    :attr:`~base.BaseApi.VERSION` attribute and implement the
+    :meth:`._get_command` method.
 
     :raises NotImplemented: when :attr:`~base.BaseApi.VERSION` is not defined
     :raises NotImplemented: when :meth:`._get_command` is not implemented
@@ -74,7 +75,7 @@ class BaseCvApi(BaseApi):
 
 class CvApiV3(BaseCvApi):
     """
-    Console API bindings for CiviCRM APIv3.
+    Cv API bindings for CiviCRM APIv3.
 
     :param str cv: cv command
     :param str cwd: working directory for cv
@@ -97,7 +98,7 @@ class CvApiV3(BaseCvApi):
 
 class CvApiV4(BaseCvApi):
     """
-    Console API bindings for CiviCRM APIv4.
+    Cv API bindings for CiviCRM APIv4.
 
     :param str cv: cv command
     :param str cwd: working directory for cv

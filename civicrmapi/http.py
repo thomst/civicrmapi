@@ -12,7 +12,7 @@ logger = logging.getLogger('civicrmapi')
 
 class BaseHttpApi(BaseApi):
     """
-    Base class for CiviCRM Rest API implementations. Subclasses must define the
+    Base class for HTTP API implementations. Subclasses must define the
     :attr:`~base.BaseApi.VERSION` attribute and implement the :meth:`._perform_api_call` method.
 
     :raises NotImplemented: when :attr:`~base.BaseApi.VERSION` is not defined
@@ -74,7 +74,7 @@ class BaseHttpApi(BaseApi):
 
 class HttpApiV3(BaseHttpApi):
     """
-    API bindings for CiviCRM's RestApiv3.
+    HTTP API bindings for CiviCRM's API v3.
 
     :param str url: CiviCRM's base-url
     :param str api_key: CiviCRM's api-key
@@ -104,7 +104,7 @@ class HttpApiV3(BaseHttpApi):
 
 class HttpApiV4(BaseHttpApi):
     """
-    API bindings for CiviCRM's RestApiv4.
+    HTTP API bindings for CiviCRM's API v4.
 
     :param str url: CiviCRM's base-url
     :param str api_key: CiviCRM's api-key
