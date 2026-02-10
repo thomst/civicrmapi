@@ -15,14 +15,14 @@ Getting Started
 ---------------
 There are four ready to use api classes:
 
-- :class:`~civicrmapi.rest.RestApiV3` - REST API bindings for CiviCRM APIv3
-- :class:`~civicrmapi.rest.RestApiV4` - REST API bindings for CiviCRM APIv4
-- :class:`~civicrmapi.console.ConsoleApiV3` - Using `cv` to access CiviCRM APIv3
-- :class:`~civicrmapi.console.ConsoleApiV4` - Using `cv` to access CiviCRM APIv4
+- :class:`~civicrmapi.http.HttpApiV3` - REST API bindings for CiviCRM APIv3
+- :class:`~civicrmapi.http.HttpApiV4` - REST API bindings for CiviCRM APIv4
+- :class:`~civicrmapi.cv.CvApiV3` - Using `cv` to access CiviCRM APIv3
+- :class:`~civicrmapi.cv.CvApiV4` - Using `cv` to access CiviCRM APIv4
 
 All you need to do is to initialize the api of your choice and use it::
 
-    >>> api = ConsoleApiV4(cv=cv, context=context)
+    >>> api = CvApiV4(cv=cv, context=context)
     >>> params = {
     ...     "contact_type": "Organization",
     ...     "organization_name": "pretty org",
@@ -47,7 +47,7 @@ their actions are all callable.
 
 The following ways of performing an api call are equivalent::
 
-    >>> api = RestApiV4(url=url, api_key=api_key)
+    >>> api = HttpApiV4(url=url, api_key=api_key)
     >>> params = {"contact_type": "Organization"}
 
     >>> # Calling the action instance.
@@ -93,7 +93,7 @@ plain field-value dictonary.
 
 So those Contact.get api calls are equivalent::
 
-    >>> api = ConsoleApiV4(cv=cv, context=context)
+    >>> api = CvApiV4(cv=cv, context=context)
 
     >>> # Api call with original v4 parameter format.:
     >>> params = {
@@ -118,7 +118,7 @@ So those Contact.get api calls are equivalent::
 
 The same works for a create api call::
 
-    >>> api = ConsoleApiV4(cv=cv, context=context)
+    >>> api = CvApiV4(cv=cv, context=context)
 
     >>> # Original v4 parameters are:
     >>> params = {
@@ -143,7 +143,7 @@ The same works for a create api call::
 
 And even for an update api call if you use the id field to select your entity::
 
-    >>> api = ConsoleApiV4(cv=cv, context=context)
+    >>> api = CvApiV4(cv=cv, context=context)
 
     >>> # Original v4 parameters are:
     >>> params = {
@@ -197,7 +197,7 @@ entity::
     ...             result = self.create(params)
     ...         return result
 
-    >>> api = ConsoleApiV4(cv=cv, context=context)
+    >>> api = CvApiV4(cv=cv, context=context)
     >>> params = {
     ...     'contact_type': 'Organization',
     ...     'organization_name': 'Super Org',
@@ -219,7 +219,7 @@ Let's try another approach using a mixin for our entities::
     ...             result = self.create(params)
     ...         return result
 
-    >>> class MyApi(ConsoleApiV4):
+    >>> class MyApi(CvApiV4):
     ...     def _add_entities(self):
     ...         for entity in self.VERSION.ENTITIES:
     ...             entity = type(entity, (MyMixin, BaseEntity), dict(NAME=entity))
@@ -247,7 +247,7 @@ from .base import BaseEntity
 from .base import BaseApi
 from .errors import InvalidApiCall
 from .errors import InvalidResponse
-from .rest import RestApiV3
-from .rest import RestApiV4
-from .console import ConsoleApiV3
-from .console import ConsoleApiV4
+from .http import HttpApiV3
+from .http import HttpApiV4
+from .cv import CvApiV3
+from .cv import CvApiV4

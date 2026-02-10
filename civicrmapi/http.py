@@ -10,7 +10,7 @@ from .errors import InvalidApiCall
 logger = logging.getLogger('civicrmapi')
 
 
-class BaseRestApi(BaseApi):
+class BaseHttpApi(BaseApi):
     """
     Base class for CiviCRM Rest API implementations. Subclasses must define the
     :attr:`~base.BaseApi.VERSION` attribute and implement the :meth:`._perform_api_call` method.
@@ -72,7 +72,7 @@ class BaseRestApi(BaseApi):
         raise NotImplemented
 
 
-class RestApiV3(BaseRestApi):
+class HttpApiV3(BaseHttpApi):
     """
     API bindings for CiviCRM's RestApiv3.
 
@@ -102,7 +102,7 @@ class RestApiV3(BaseRestApi):
         return self._perform_post_request(base_params)
 
 
-class RestApiV4(BaseRestApi):
+class HttpApiV4(BaseHttpApi):
     """
     API bindings for CiviCRM's RestApiv4.
 

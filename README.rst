@@ -38,22 +38,22 @@ Getting started
 ===============
 There are four ready to use api classes:
 
-- `RestApiV3`_ - REST API bindings for CiviCRM APIv3
-- `RestApiV4`_ - REST API bindings for CiviCRM APIv4
-- `ConsoleApiV3`_ - Using `cv` to access CiviCRM APIv3
-- `ConsoleApiV4`_ - Using `cv` to access CiviCRM APIv4
+- `HttpApiV3`_ - REST API bindings for CiviCRM APIv3
+- `HttpApiV4`_ - REST API bindings for CiviCRM APIv4
+- `CvApiV3`_ - Using `cv` to access CiviCRM APIv3
+- `CvApiV4`_ - Using `cv` to access CiviCRM APIv4
 
-.. _RestApiV3: https://thomst.github.io/civicrmapi/#civicrmapi.rest.RestApiV3
-.. _RestApiV4: https://thomst.github.io/civicrmapi/#civicrmapi.rest.RestApiV4
-.. _ConsoleApiV3: https://thomst.github.io/civicrmapi/#civicrmapi.console.ConsoleApiV3
-.. _ConsoleApiV4: https://thomst.github.io/civicrmapi/#civicrmapi.console.ConsoleApiV4
+.. _HttpApiV3: https://thomst.github.io/civicrmapi/#civicrmapi.http.HttpApiV3
+.. _HttpApiV4: https://thomst.github.io/civicrmapi/#civicrmapi.http.HttpApiV4
+.. _CvApiV3: https://thomst.github.io/civicrmapi/#civicrmapi.cv.CvApiV3
+.. _CvApiV4: https://thomst.github.io/civicrmapi/#civicrmapi.cv.CvApiV4
 
 
 All you need to do is to initialize the api of your choice and use it::
 
-    from civicrmapi import ConsoleApiV4
+    from civicrmapi import CvApiV4
 
-    api = ConsoleApiV4(cv='/path/to/cv', cwd='/path/to/civicrm/root')
+    api = CvApiV4(cv='/path/to/cv', cwd='/path/to/civicrm/root')
     params = {
         "contact_type": "Organization",
         "organization_name": "pretty org",

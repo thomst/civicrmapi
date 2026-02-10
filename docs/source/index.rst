@@ -37,11 +37,11 @@ Base API classes
 REST API for v3 and v4
 ----------------------
 
-.. autoclass:: civicrmapi.rest.RestApiV3
+.. autoclass:: civicrmapi.http.HttpApiV3
    :members:
    :exclude-members: VERSION
 
-.. autoclass:: civicrmapi.rest.RestApiV4
+.. autoclass:: civicrmapi.http.HttpApiV4
    :members:
    :exclude-members: VERSION
 
@@ -49,11 +49,11 @@ REST API for v3 and v4
 API v3 and v4 for cv
 --------------------
 
-.. autoclass:: civicrmapi.console.ConsoleApiV3
+.. autoclass:: civicrmapi.cv.CvApiV3
    :members:
    :exclude-members: VERSION
 
-.. autoclass:: civicrmapi.console.ConsoleApiV4
+.. autoclass:: civicrmapi.cv.CvApiV4
    :members:
    :exclude-members: VERSION
 

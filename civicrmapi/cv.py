@@ -11,7 +11,7 @@ from .errors import InvalidApiCall
 logger = logging.getLogger('civicrmapi')
 
 
-class BaseConsoleApi(BaseApi):
+class BaseCvApi(BaseApi):
     """
     Base class for CiviCRM Console API implementations. Subclasses must define the
     :attr:`~base.BaseApi.VERSION` attribute and implement the :meth:`._get_command` method.
@@ -72,7 +72,7 @@ class BaseConsoleApi(BaseApi):
             return reply
 
 
-class ConsoleApiV3(BaseConsoleApi):
+class CvApiV3(BaseCvApi):
     """
     Console API bindings for CiviCRM APIv3.
 
@@ -95,7 +95,7 @@ class ConsoleApiV3(BaseConsoleApi):
         return '{} | {}'.format(' '.join(echo_params), ' '.join(command))
 
 
-class ConsoleApiV4(BaseConsoleApi):
+class CvApiV4(BaseCvApi):
     """
     Console API bindings for CiviCRM APIv4.
 

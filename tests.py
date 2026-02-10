@@ -12,10 +12,10 @@ from civicrmapi import __version__
 from civicrmapi.errors import InvalidApiCall
 from civicrmapi.errors import InvalidResponse
 from civicrmapi.base import BaseEntity
-from civicrmapi.rest import RestApiV3
-from civicrmapi.rest import RestApiV4
-from civicrmapi.console import ConsoleApiV3
-from civicrmapi.console import ConsoleApiV4
+from civicrmapi.http import HttpApiV3
+from civicrmapi.http import HttpApiV4
+from civicrmapi.cv import CvApiV3
+from civicrmapi.cv import CvApiV4
 
 
 
@@ -63,10 +63,10 @@ class ApiTestCase(unittest.TestCase):
 
     def setUp(self):
         self.apis = dict(v3=dict(), v4=dict())
-        self.apis['v3']['rest'] = RestApiV3(SETUP['url'], SETUP['api_key'], SETUP['site_key'])
-        self.apis['v3']['cv'] = ConsoleApiV3(SETUP['cv'], context=SETUP['context'])
-        self.apis['v4']['rest'] = RestApiV4(SETUP['url'], SETUP['api_key'])
-        self.apis['v4']['cv'] = ConsoleApiV4(SETUP['cv'], context=SETUP['context'])
+        self.apis['v3']['http'] = HttpApiV3(SETUP['url'], SETUP['api_key'], SETUP['site_key'])
+        self.apis['v3']['cv'] = CvApiV3(SETUP['cv'], context=SETUP['context'])
+        self.apis['v4']['http'] = HttpApiV4(SETUP['url'], SETUP['api_key'])
+        self.apis['v4']['cv'] = CvApiV4(SETUP['cv'], context=SETUP['context'])
         self.apis['all'] = [a for apis in self.apis.values() for a in apis.values()]
 
     def test_api_initialization(self):
@@ -80,24 +80,24 @@ class ApiTestCase(unittest.TestCase):
                 for action in api.VERSION.ACTIONS:
                     self.assertTrue(hasattr(getattr(api, entity_name), action))
 
-    def test_rest_api_with_dummy_url(self):
-        api = RestApiV3('dummy.de', 'FAKE_API_KEY', 'FAKE_SITE_KEY')
+    def test_http_api_with_dummy_url(self):
+        api = HttpApiV3('dummy.de', 'FAKE_API_KEY', 'FAKE_SITE_KEY')
         with self.assertRaises(requests.exceptions.RequestException):
             api.Contact.get()
-        api = RestApiV4('dummy.de', 'FAKE_API_KEY')
+        api = HttpApiV4('dummy.de', 'FAKE_API_KEY')
         with self.assertRaises(requests.exceptions.RequestException):
             api.Contact.get()
 
-    def test_console_api_with_dummy_cv(self):
-        api = ConsoleApiV3('dummy-cv')
+    def test_cv_api_with_dummy_cv(self):
+        api = CvApiV3('dummy-cv')
         with self.assertRaises(subprocess.CalledProcessError):
             api.Contact.get()
-        api = ConsoleApiV4('dummy-cv')
+        api = CvApiV4('dummy-cv')
         with self.assertRaises(subprocess.CalledProcessError):
             api.Contact.get()
 
-    def test_console_with_echo_instead_cv(self):
-        api = ConsoleApiV4('echo')
+    def test_cv_with_echo_instead_cv(self):
+        api = CvApiV4('echo')
         with self.assertRaises(InvalidResponse):
             api.Contact.get()
 
@@ -121,16 +121,16 @@ class ApiTestCase(unittest.TestCase):
     @unittest.skipIf(not SETUP, 'No test installation setup found.')
     def test_compare_api_results(self):
         # Simple api v3 call.
-        rest_result = self.apis['v3']['rest'].Contact.get()
-        console_result = self.apis['v3']['cv'].Contact.get()
-        self.assertIsInstance(rest_result, list)
-        self.assertEqual(len(rest_result), len(console_result))
+        http_result = self.apis['v3']['http'].Contact.get()
+        cv_result = self.apis['v3']['cv'].Contact.get()
+        self.assertIsInstance(http_result, list)
+        self.assertEqual(len(http_result), len(cv_result))
 
         # Simple api v4 call.
-        rest_result = self.apis['v4']['rest'].Contact.get()
-        console_result = self.apis['v4']['cv'].Contact.get()
-        self.assertIsInstance(rest_result, list)
-        self.assertEqual(len(rest_result), len(console_result))
+        http_result = self.apis['v4']['http'].Contact.get()
+        cv_result = self.apis['v4']['cv'].Contact.get()
+        self.assertIsInstance(http_result, list)
+        self.assertEqual(len(http_result), len(cv_result))
 
         # Use a more complex api v4 call.
         params = dict(
@@ -138,17 +138,17 @@ class ApiTestCase(unittest.TestCase):
             where=[['contact_type', '=', 'Organization']],
             limit=1
             )
-        rest_result = self.apis['v4']['rest'].Contact.get(params)
-        console_result = self.apis['v4']['cv'].Contact.get(params)
-        self.assertIsInstance(rest_result, list)
-        self.assertEqual(len(rest_result), len(console_result))
+        http_result = self.apis['v4']['http'].Contact.get(params)
+        cv_result = self.apis['v4']['cv'].Contact.get(params)
+        self.assertIsInstance(http_result, list)
+        self.assertEqual(len(http_result), len(cv_result))
 
         # Use a more complex api v3 call.
         params = {'return': 'id,contact_type', 'contact_type': 'Organization'}
-        rest_result = self.apis['v3']['rest'].Contact.get(params)
-        console_result = self.apis['v3']['cv'].Contact.get(params)
-        self.assertIsInstance(rest_result, list)
-        self.assertEqual(len(rest_result), len(console_result))
+        http_result = self.apis['v3']['http'].Contact.get(params)
+        cv_result = self.apis['v3']['cv'].Contact.get(params)
+        self.assertIsInstance(http_result, list)
+        self.assertEqual(len(http_result), len(cv_result))
 
     @unittest.skipIf(not SETUP, 'No test installation setup found.')
     def test_invalid_entity(self):
@@ -189,45 +189,45 @@ class ApiTestCase(unittest.TestCase):
     def test_api_v4_parameter_preperation(self):
         # Get action with no where key.
         params = {'contact_type': 'Organization'}
-        rest_result = self.apis['v4']['rest'].Contact.get(params)
-        console_result = self.apis['v4']['cv'].Contact.get(params)
-        self.assertIsInstance(rest_result, list)
-        self.assertEqual(rest_result, console_result)
-        self.assertEqual(rest_result[0]['contact_type'], 'Organization')
+        http_result = self.apis['v4']['http'].Contact.get(params)
+        cv_result = self.apis['v4']['cv'].Contact.get(params)
+        self.assertIsInstance(http_result, list)
+        self.assertEqual(http_result, cv_result)
+        self.assertEqual(http_result[0]['contact_type'], 'Organization')
 
         # Create action with no values key.
         params = {'contact_type': 'Organization', 'organization_name': 'Super Org'}
-        rest_result = self.apis['v4']['rest'].Contact.create(params)
-        console_result = self.apis['v4']['cv'].Contact.create(params)
-        self.assertIsInstance(rest_result, list)
-        self.assertIsInstance(console_result, list)
-        self.assertEqual(rest_result[0]['organization_name'], 'Super Org')
+        http_result = self.apis['v4']['http'].Contact.create(params)
+        cv_result = self.apis['v4']['cv'].Contact.create(params)
+        self.assertIsInstance(http_result, list)
+        self.assertIsInstance(cv_result, list)
+        self.assertEqual(http_result[0]['organization_name'], 'Super Org')
 
         # Update action with no where key but an id key.
-        contact_id = rest_result[0]['id']
+        contact_id = http_result[0]['id']
         params = {'id': contact_id, 'organization_name': 'Mega Org'}
-        rest_result = self.apis['v4']['rest'].Contact.update(params)
+        http_result = self.apis['v4']['http'].Contact.update(params)
         params = {'id': contact_id, 'organization_name': 'Ultra Org'}
-        console_result = self.apis['v4']['cv'].Contact.update(params)
-        self.assertIsInstance(rest_result, list)
-        self.assertIsInstance(console_result, list)
-        self.assertEqual(console_result[0]['organization_name'], 'Ultra Org')
+        cv_result = self.apis['v4']['cv'].Contact.update(params)
+        self.assertIsInstance(http_result, list)
+        self.assertIsInstance(cv_result, list)
+        self.assertEqual(cv_result[0]['organization_name'], 'Ultra Org')
 
         # Delete with no where key.
         params = {'contact_type': 'Organization', 'organization_name': 'Super Org'}
-        rest_result = self.apis['v4']['rest'].Contact.delete(params)
+        http_result = self.apis['v4']['http'].Contact.delete(params)
         params = {'contact_type': 'Organization', 'organization_name': 'Ultra Org'}
-        console_result = self.apis['v4']['cv'].Contact.delete(params)
-        self.assertIsInstance(rest_result, list)
-        self.assertIsInstance(console_result, list)
+        cv_result = self.apis['v4']['cv'].Contact.delete(params)
+        self.assertIsInstance(http_result, list)
+        self.assertIsInstance(cv_result, list)
 
     def test_docstrings(self):
         globs = dict(
             BaseEntity=BaseEntity,
-            ConsoleApiV3=ConsoleApiV3,
-            ConsoleApiV4=ConsoleApiV4,
-            RestApiV3=RestApiV3,
-            RestApiV4=RestApiV4,
+            CvApiV3=CvApiV3,
+            CvApiV4=CvApiV4,
+            HttpApiV3=HttpApiV3,
+            HttpApiV4=HttpApiV4,
             url=SETUP['url'],
             api_key=SETUP['api_key'],
             cv=SETUP['cv'],
