@@ -5,7 +5,8 @@ import subprocess
 from . import v3
 from . import v4
 from .base import BaseApi
-from .errors import InvalidApiCall
+from .errors import ApiError
+from .errors import InvalidResponse
 
 
 logger = logging.getLogger('civicrmapi')
@@ -51,26 +52,29 @@ class BaseCvApi(BaseApi):
             # Unfortunately we have no chance to identify invalid api calls by
             # just the return code. So we need some further diggin.
 
-            # If we have json formatted stdout we probably have an invalid api
-            # v3 call.
-            try:
-                data = json.loads(exc.stdout)
-            except json.JSONDecodeError:
-                pass
-            else:
-                raise InvalidApiCall(data)
-
             # An invalid api v4 call should be contain this pattern in stderr.
             if 'api4 [--in IN] [--out OUT]'.lower() in exc.stderr.lower():
-                raise InvalidApiCall(exc)
+                raise ApiError(exc.stderr)
 
-            # For everything else we UnkownConsoleError.
-            else:
+            # If we have json formatted stdout with an is_error key we are sure
+            # to have an invalid api v3 call which will be handled by the the
+            # base api class.
+            try:
+                data = json.loads(exc.stdout)
+                data['is_error']
+            except (json.JSONDecodeError, KeyError):
                 raise exc
+            else:
+                return data
 
         else:
-            logger.info(f'Command result: {reply}')
-            return reply
+            # Try to load reply as json formatted string.
+            try:
+                data = json.loads(reply.stdout)
+            except json.JSONDecodeError:
+                raise InvalidResponse(reply)
+            else:
+                return data
 
 
 class CvApiV3(BaseCvApi):

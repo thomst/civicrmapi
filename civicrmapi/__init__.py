@@ -244,7 +244,9 @@ statistics on api usage ect. Use what ever approach fits to your needs.
 from .base import BaseAction
 from .base import BaseEntity
 from .base import BaseApi
-from .errors import InvalidApiCall
+from .errors import ApiCallError
+from .errors import ApiError
+from .errors import AccessDenied
 from .errors import InvalidResponse
 from .http import HttpApiV3
 from .http import HttpApiV4

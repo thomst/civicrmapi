@@ -9,7 +9,8 @@ import doctest
 import civicrmapi
 from pathlib import Path
 from civicrmapi import __version__
-from civicrmapi.errors import InvalidApiCall
+from civicrmapi.errors import ApiError
+from civicrmapi.errors import AccessDenied
 from civicrmapi.errors import InvalidResponse
 from civicrmapi.base import BaseEntity
 from civicrmapi.http import HttpApiV3
@@ -59,7 +60,7 @@ else:
 pprint.pprint(SETUP)
 
 
-class ApiTestCase(unittest.TestCase):
+class ApiMixin:
 
     def setUp(self):
         self.apis = dict(v3=dict(), v4=dict())
@@ -68,6 +69,9 @@ class ApiTestCase(unittest.TestCase):
         self.apis['v4']['http'] = HttpApiV4(SETUP['url'], SETUP['api_key'])
         self.apis['v4']['cv'] = CvApiV4(SETUP['cv'], context=SETUP['context'])
         self.apis['all'] = [a for apis in self.apis.values() for a in apis.values()]
+
+
+class ApiCallTestCase(ApiMixin, unittest.TestCase):
 
     def test_api_initialization(self):
         for api in self.apis['all']:
@@ -80,33 +84,13 @@ class ApiTestCase(unittest.TestCase):
                 for action in api.VERSION.ACTIONS:
                     self.assertTrue(hasattr(getattr(api, entity_name), action))
 
-    def test_http_api_with_dummy_url(self):
-        api = HttpApiV3('dummy.de', 'FAKE_API_KEY', 'FAKE_SITE_KEY')
-        with self.assertRaises(requests.exceptions.RequestException):
-            api.Contact.get()
-        api = HttpApiV4('dummy.de', 'FAKE_API_KEY')
-        with self.assertRaises(requests.exceptions.RequestException):
-            api.Contact.get()
-
-    def test_cv_api_with_dummy_cv(self):
-        api = CvApiV3('dummy-cv')
-        with self.assertRaises(subprocess.CalledProcessError):
-            api.Contact.get()
-        api = CvApiV4('dummy-cv')
-        with self.assertRaises(subprocess.CalledProcessError):
-            api.Contact.get()
-
-    def test_cv_with_echo_instead_cv(self):
-        api = CvApiV4('echo')
-        with self.assertRaises(InvalidResponse):
-            api.Contact.get()
-
     @unittest.skipIf(not SETUP, 'No test installation setup found.')
     def test_simple_api_call(self):
         for api in self.apis['all']:
             result = api.Contact.get()
             self.assertIsInstance(result, list)
 
+    @unittest.skipIf(not SETUP, 'No test installation setup found.')
     def test_create_api_call(self):
         params = {'contact_id': 2, 'email': 'email@example.de'}
         for api in self.apis['v3'].values():
@@ -151,41 +135,6 @@ class ApiTestCase(unittest.TestCase):
         self.assertEqual(len(http_result), len(cv_result))
 
     @unittest.skipIf(not SETUP, 'No test installation setup found.')
-    def test_invalid_entity(self):
-        for api in self.apis['all']:
-            with self.assertRaises(InvalidApiCall):
-                api('Foobar', 'get')
-
-    @unittest.skipIf(not SETUP, 'No test installation setup found.')
-    def test_invalid_action(self):
-        for api in self.apis['all']:
-            with self.assertRaises(InvalidApiCall):
-                api.Contact('foobar')
-
-    @unittest.skipIf(not SETUP, 'No test installation setup found.')
-    def test_invalid_field(self):
-        # Api v3 and v4 are not consistent in raising errors with invalid field
-        # parameters. V3 raises "missing mandatory field" for create, but gives
-        # a result list for get. V4 raises "invalid field" error for get, but
-        # creates whatever for create.
-        params = {'foo': 'bar'}
-        for api in self.apis['v3'].values():
-            with self.assertRaises(InvalidApiCall):
-                api.Contact.create(params)
-        for api in self.apis['v4'].values():
-            with self.assertRaises(InvalidApiCall):
-                api.Contact.get(params)
-
-    @unittest.skipIf(not SETUP, 'No test installation setup found.')
-    def test_invalid_value(self):
-        # Api v4 actually creates an email without contact_id for those params.
-        # Ups.
-        params = {'contact_id': 'not-a-number', 'email': 'not-an-email-address'}
-        for api in self.apis['v3'].values():
-            with self.assertRaises(InvalidApiCall):
-                api.Email.create(params)
-
-    @unittest.skipIf(not SETUP, 'No test installation setup found.')
     def test_api_v4_parameter_preperation(self):
         # Get action with no where key.
         params = {'contact_type': 'Organization'}
@@ -220,6 +169,77 @@ class ApiTestCase(unittest.TestCase):
         cv_result = self.apis['v4']['cv'].Contact.delete(params)
         self.assertIsInstance(http_result, list)
         self.assertIsInstance(cv_result, list)
+
+
+# TODO: Test with unprivileged user.
+class ExceptionTestCase(ApiMixin, unittest.TestCase):
+
+    def test_http_api_with_dummy_url(self):
+        api = HttpApiV3('dummy.de', 'FAKE_API_KEY', 'FAKE_SITE_KEY')
+        with self.assertRaises(requests.exceptions.RequestException):
+            api.Contact.get()
+        api = HttpApiV4('dummy.de', 'FAKE_API_KEY')
+        with self.assertRaises(requests.exceptions.RequestException):
+            api.Contact.get()
+
+    def test_cv_api_with_dummy_cv(self):
+        api = CvApiV3('dummy-cv')
+        with self.assertRaises(subprocess.CalledProcessError):
+            api.Contact.get()
+        api = CvApiV4('dummy-cv')
+        with self.assertRaises(subprocess.CalledProcessError):
+            api.Contact.get()
+
+    def test_cv_with_echo_instead_cv(self):
+        api = CvApiV4('echo')
+        with self.assertRaises(InvalidResponse):
+            api.Contact.get()
+
+    @unittest.skipIf(not SETUP, 'No test installation setup found.')
+    def test_invalid_api_key(self):
+        apiv3 = HttpApiV3(SETUP['url'], 'FAKE_API_KEY', 'FAKE_SITE_KEY')
+        apiv4 = HttpApiV4(SETUP['url'], 'FAKE_API_KEY')
+        for api in [apiv3, apiv4]:
+            with self.assertRaises(AccessDenied):
+                api.Contact.get()
+
+    @unittest.skipIf(not SETUP, 'No test installation setup found.')
+    def test_invalid_entity(self):
+        for api in self.apis['all']:
+            with self.assertRaises(ApiError):
+                api('Foobar', 'get')
+
+    @unittest.skipIf(not SETUP, 'No test installation setup found.')
+    def test_invalid_action(self):
+        for api in self.apis['all']:
+            with self.assertRaises(ApiError):
+                api.Contact('foobar')
+
+    @unittest.skipIf(not SETUP, 'No test installation setup found.')
+    def test_invalid_field(self):
+        # Api v3 and v4 are not consistent in raising errors with invalid field
+        # parameters. V3 raises "missing mandatory field" for create, but gives
+        # a result list for get. V4 raises "invalid field" error for get, but
+        # creates whatever for create.
+        params = {'foo': 'bar'}
+        for api in self.apis['v3'].values():
+            with self.assertRaises(ApiError):
+                api.Contact.create(params)
+        for api in self.apis['v4'].values():
+            with self.assertRaises(ApiError):
+                api.Contact.get(params)
+
+    @unittest.skipIf(not SETUP, 'No test installation setup found.')
+    def test_invalid_value(self):
+        # Api v4 actually creates an email without contact_id for those params.
+        # Ups.
+        params = {'contact_id': 'not-a-number', 'email': 'not-an-email-address'}
+        for api in self.apis['v3'].values():
+            with self.assertRaises(ApiError):
+                api.Email.create(params)
+
+
+class DocstringTestCase(unittest.TestCase):
 
     def test_docstrings(self):
         globs = dict(

@@ -4,7 +4,8 @@ import json
 from . import v3
 from . import v4
 from .base import BaseApi
-from .errors import InvalidApiCall
+from .errors import InvalidResponse
+from .errors import AccessDenied
 
 
 logger = logging.getLogger('civicrmapi')
@@ -63,10 +64,15 @@ class BaseHttpApi(BaseApi):
 
             # ApiV4 uses status code 401 for invalid credentials.
             if reply.status_code == 401:
-                raise InvalidApiCall(reply.text)
+                raise AccessDenied(reply.text)
 
             else:
-                return reply
+                try:
+                    data = json.loads(reply.text)
+                except json.JSONDecodeError:
+                    raise InvalidResponse(reply)
+                else:
+                    return data
 
     def _perform_api_call(self, entity, action, params):
         raise NotImplemented

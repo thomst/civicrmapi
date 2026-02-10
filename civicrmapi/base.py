@@ -1,8 +1,8 @@
 import logging
-import json
 from . import v4
 from .utils import dict_to_where_clause_list
-from .errors import InvalidApiCall
+from .errors import AccessDenied
+from .errors import ApiError
 from .errors import InvalidResponse
 
 
@@ -130,8 +130,7 @@ class BaseApi:
         params = params or dict()
         logger.info(f'Perform api call: {entity}.{action} with {params}')
         params = self._prepare_api_v4_parameters(action, params)
-        response = self._perform_api_call(entity, action, params or dict())
-        data = self._get_data_from_response(response)
+        data = self._perform_api_call(entity, action, params or dict())
         data = self._check_api_response(data)
         return self._normalize_result_values(data)
 
@@ -177,29 +176,11 @@ class BaseApi:
         :param str entity: CiviCRM-entitiy
         :param str action: api call action
         :param dict params: api call parameters (optional)
-        :return dict: api response data
+        :return dict: api result data
         """
         raise NotImplemented
 
-    def _get_data_from_response(self, response):
-        """
-        Takes a response object (either a requests response instance or a
-        subprocess completed process instance) and try to parse it as json data.
-
-        :param response: response instance
-        :type response: requests.Response or subprocess.CompletedProcess
-        :return dict: api response data
-
-        :raises InvalidResponse: when the response value is no valid json
-        """
-        value = response.text if hasattr(response, 'text') else response.stdout
-        try:
-            data = json.loads(value)
-        except json.JSONDecodeError:
-            raise InvalidResponse(response)
-        else:
-            return data
-
+    # FIXME: Explicitly check for access denied or permission related errors.
     def _check_api_response(self, data):
         """
         Process the json response from an api call.
@@ -207,16 +188,23 @@ class BaseApi:
         :param dict data: api response data
         :return dict: api response data
 
-        :raises InvalidApiCall: when an error code is found in the api response
+        :raises ApiError: when an error code is found in the api response
         """
-        # Check api-v3 data for an api error.
-        if isinstance(data, dict) and data.get('is_error', False):
-            raise InvalidApiCall(data)
-        # Check api-v4 data for an api error.
-        elif isinstance(data, dict) and 'error_code' in data:
-            raise InvalidApiCall(data)
-        else:
-            return data
+        # data might be a result list from cv API v4.
+        if isinstance(data, dict):
+            # This is an HTTP API v3 access denied error.
+            if 'invalid credential' in data.get('error_message', str()).lower():
+                raise AccessDenied(data)
+
+            # API v3 uses is_error = 1.
+            elif data.get('is_error', False):
+                raise ApiError(data)
+
+            # API v4 uses an error_code key.
+            elif 'error_code' in data:
+                raise ApiError(data)
+
+        return data
 
     def _normalize_result_values(self, data):
         """
@@ -233,6 +221,6 @@ class BaseApi:
         # If we have a dict with values we return the values list instead.
         elif 'values' in data:
             return data['values']
-        # Otherwise something is weird. We raise InvalidResponse exception.
+        # Otherwise something is weird. We raise ApiError exception.
         else:
-            raise InvalidResponse(data)
+            raise ApiError(data)
