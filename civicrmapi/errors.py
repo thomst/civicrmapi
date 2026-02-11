@@ -31,7 +31,7 @@ class ApiError(ApiCallError):
     Raised when CiviCRM's api returns an error-code, respectively the cv api v4
     command returns a specific stderr indicating a malformed api call.
 
-    :params data: api result data as dict or stderr of cv api v4 call as string
+    :params data: api result data as dict or error message as string
     :type data: dict or str
     """
     @property
@@ -53,7 +53,11 @@ class ApiError(ApiCallError):
 
 class AccessDenied(ApiError):
     """
-    Raised by HTTP api on access denied due to invalid credentials.
+    Raised by HTTP api on access denied due to invalid credentials. This class
+    uses the :class:`~.ApiError` as base class.
+
+    :params data: api result data as dict or error message as string
+    :type data: dict or str
     """
 
 
