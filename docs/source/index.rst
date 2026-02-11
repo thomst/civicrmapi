@@ -77,6 +77,7 @@ Exceptions
 
 .. automodule:: civicrmapi.errors
    :members:
+   :show-inheritance:
 
 
 |
