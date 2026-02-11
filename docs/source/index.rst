@@ -6,8 +6,8 @@
 Current version: |version|
 
 
-Welcome to civicrmapi's documentation!
-======================================
+Welcome to civicrmapi documentation
+===================================
 
 .. toctree::
    :maxdepth: 2
